@@ -1,0 +1,72 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rescuebyte-app
+    env_file:
+      - ./config/.env
+    environment:
+      - DB_HOST=db
+      - REDIS_ADDR=redis:6379
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - rescuebyte-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    container_name: rescuebyte-postgres
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    env_file:
+      - ./config/.env
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASS:-postgres}
+      - POSTGRES_DB=${DB_NAME:-rescuebyte_db}
+      - TZ=UTC
+      - PGTZ=UTC
+    volumes:
+      - rescuebyte_db_data:/var/lib/postgresql/data
+    networks:
+      - rescuebyte-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-rescuebyte_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: rescuebyte-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - rescuebyte_redis_data:/data
+    networks:
+      - rescuebyte-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  rescuebyte-network:
+    name: rescuebyte-network
+    driver: bridge
+
+volumes:
+  rescuebyte_db_data:
+    name: rescuebyte_db_data
+  rescuebyte_redis_data:
+    name: rescuebyte_redis_data

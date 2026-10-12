@@ -1,0 +1,56 @@
+version: "3"
+
+dotenv:
+  - "./config/.env"
+
+vars:
+  DSN: "postgres://{{.DB_USER}}:{{.DB_PASS}}@{{.DB_HOST}}:{{.DB_PORT}}/{{.DB_NAME}}?sslmode=disable"
+
+tasks:
+  default:
+    desc: "Getting started"
+    cmds:
+      - task: install
+
+  install:
+    desc: "Install dependencies"
+    cmds:
+      - go mod tidy
+      - go install github.com/air-verse/air@latest
+      - go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+  dev:
+    desc: "Run app with hot-reload"
+    cmd: air
+
+  build:
+    desc: "Build application binary"
+    cmd: go build -o ./tmp/main.exe ./cmd/app
+
+  migrate:up:
+    desc: "Run all up database migrations"
+    cmd: migrate -path ./database/migrations -database "{{.DSN}}" up
+
+  migrate:down:
+    desc: "Rollback last database migration"
+    cmd: migrate -path ./database/migrations -database "{{.DSN}}" down 1
+
+  migrate:create:
+    desc: "Create new migration. Usage: task migrate:create -- name"
+    cmd: migrate create -ext sql -dir ./database/migrations -seq {{.CLI_ARGS}}
+
+  docker:up:
+    desc: "Start all services via Docker Compose"
+    cmd: docker compose up -d
+
+  docker:down:
+    desc: "Stop all Docker Compose services"
+    cmd: docker compose down
+
+  docker:build:
+    desc: "Rebuild and start Docker Compose services"
+    cmd: docker compose up -d --build
+
+  docker:logs:
+    desc: "View logs from Docker Compose services"
+    cmd: docker compose logs -f
