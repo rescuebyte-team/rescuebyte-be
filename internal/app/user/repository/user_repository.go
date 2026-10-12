@@ -9,20 +9,10 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 
-	"github.com/rescuebyte/rescuebyte-be/domain/contracts"
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/enums"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
-	"github.com/rescuebyte/rescuebyte-be/internal/infra/database"
 )
-
-type userRepository struct {
-	dbGetter database.DBGetter
-}
-
-func NewUserRepository(dbGetter database.DBGetter) contracts.UserRepository {
-	return &userRepository{dbGetter: dbGetter}
-}
 
 var userSelectFields = []string{
 	"id", "email", "password_hash", "name", "avatar_url",

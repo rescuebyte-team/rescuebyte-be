@@ -5,29 +5,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/rescuebyte/rescuebyte-be/domain/contracts"
 	"github.com/rescuebyte/rescuebyte-be/domain/dto"
-	"github.com/rescuebyte/rescuebyte-be/internal/infra/database"
-	"github.com/rescuebyte/rescuebyte-be/pkg/validator"
 )
-
-type userService struct {
-	transactor database.Transactor
-	userRepo   contracts.UserRepository
-	validator  validator.Service
-}
-
-func NewUserService(
-	transactor database.Transactor,
-	userRepo contracts.UserRepository,
-	validator validator.Service,
-) contracts.UserService {
-	return &userService{
-		transactor: transactor,
-		userRepo:   userRepo,
-		validator:  validator,
-	}
-}
 
 func (s *userService) GetProfile(ctx context.Context, userID uuid.UUID) (*dto.UserResponse, error) {
 	user, err := s.userRepo.GetUserByID(ctx, userID)
