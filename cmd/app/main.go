@@ -14,6 +14,24 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/pkg/log"
 )
 
+// @title RescueByte Backend API
+// @version 1.0
+// @description RESTful API documentation for RescueByte Backend.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name RescueByte Support
+// @contact.email support@rescuebyte.com
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and your JWT access token.
 func main() {
 	loc, err := time.LoadLocation("UTC")
 	if err != nil {

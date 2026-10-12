@@ -5,11 +5,13 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
+	swaggo "github.com/gofiber/contrib/v3/swaggo"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
 
+	_ "github.com/rescuebyte/rescuebyte-be/docs"
 	authCtr "github.com/rescuebyte/rescuebyte-be/internal/app/auth/controller"
 	authSvc "github.com/rescuebyte/rescuebyte-be/internal/app/auth/service"
 	userCtr "github.com/rescuebyte/rescuebyte-be/internal/app/user/controller"
@@ -111,13 +113,16 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 	// Middlewares
 	middleware := middlewares.NewMiddleware(jwtService)
 
-	// Root health check endpoint
-	s.app.Get("/", func(c fiber.Ctx) error {
-		return response.SendResponse(c, fiber.StatusOK, map[string]string{
-			"message": "RescueByte API is up and running",
-			"status":  "healthy",
-		})
+	// Swagger Documentation
+	s.app.Get("/swagger", func(c fiber.Ctx) error {
+		return c.Redirect().To("/swagger/index.html")
 	})
+	s.app.Get("/swagger/*", swaggo.New(swaggo.Config{
+		Title: "RescueByte API Documentation",
+	}))
+
+	// Root health check endpoint
+	s.app.Get("/", s.healthCheck)
 
 	api := s.app.Group("/api")
 	v1 := api.Group("/v1")
@@ -125,4 +130,18 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 	// Domain Controllers Initialization (mounting endpoints within their respective modules)
 	authCtr.InitAuthController(v1, authService, middleware)
 	userCtr.InitUserController(v1, userService, middleware)
+}
+
+// healthCheck godoc
+// @Summary Root health check endpoint
+// @Description Check API server status and liveness
+// @Tags System
+// @Produce json
+// @Success 200 {object} response.Response{payload=map[string]string} "API is healthy"
+// @Router / [get]
+func (s *httpServer) healthCheck(c fiber.Ctx) error {
+	return response.SendResponse(c, fiber.StatusOK, map[string]string{
+		"message": "RescueByte API is up and running",
+		"status":  "healthy",
+	})
 }

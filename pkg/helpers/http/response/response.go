@@ -10,8 +10,25 @@ import (
 )
 
 type Response struct {
-	RequestID string      `json:"request_id,omitempty"`
+	RequestID string      `json:"request_id,omitempty" example:"550e8400-e29b-41d4-a716-446655440000"`
 	Payload   interface{} `json:"payload"`
+}
+
+type ErrorDetail struct {
+	Message   string `json:"message" example:"The request payload or parameter is not valid."`
+	ErrorCode string `json:"error_code,omitempty" example:"bad_request"`
+	Error     string `json:"error,omitempty" example:"validation failed"`
+	Location  string `json:"location,omitempty" example:"body.email"`
+	Details   any    `json:"details,omitempty"`
+}
+
+type ErrorPayload struct {
+	Error ErrorDetail `json:"error"`
+}
+
+type ErrorResponse struct {
+	RequestID string       `json:"request_id,omitempty" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Payload   ErrorPayload `json:"payload"`
 }
 
 func SendResponse(ctx fiber.Ctx, code int, payload any) error {
