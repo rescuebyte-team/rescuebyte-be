@@ -63,16 +63,12 @@ definitions:
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateUserRoleRequest:
     properties:
-      role:
-        allOf:
-        - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_enums.UserRole'
-        enum:
-        - ADMIN
-        - USER
+      role_id:
+        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_enums.UserRoleIdx'
       user_id:
         type: string
     required:
-    - role
+    - role_id
     - user_id
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.UserResponse:
@@ -90,7 +86,9 @@ definitions:
       provider:
         $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_enums.AuthProvider'
       role:
-        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_enums.UserRole'
+        type: string
+      role_id:
+        type: integer
       updated_at:
         type: string
     type: object
@@ -102,14 +100,19 @@ definitions:
     x-enum-varnames:
     - ProviderLocal
     - ProviderGoogle
-  github_com_rescuebyte_rescuebyte-be_domain_enums.UserRole:
+  github_com_rescuebyte_rescuebyte-be_domain_enums.UserRoleIdx:
     enum:
-    - ADMIN
-    - USER
-    type: string
+    - 0
+    - 1
+    - 2
+    - 3
+    format: int32
+    type: integer
     x-enum-varnames:
-    - RoleAdmin
-    - RoleUser
+    - RoleUnknownIdx
+    - RoleUserIdx
+    - RoleAdminIdx
+    - RoleSellerIdx
   github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorDetail:
     properties:
       details: {}
