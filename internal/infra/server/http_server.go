@@ -145,7 +145,6 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 		Title: "RescueByte API Documentation",
 	}))
 
-	// Root health check endpoint
 	s.app.Get("/", func(c fiber.Ctx) error {
 		return c.Redirect().Status(fiber.StatusMovedPermanently).To("/swagger/index.html")
 	})
