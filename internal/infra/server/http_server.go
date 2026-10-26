@@ -15,6 +15,12 @@ import (
 	authSvc "github.com/rescuebyte/rescuebyte-be/internal/app/auth/service"
 	enumCtr "github.com/rescuebyte/rescuebyte-be/internal/app/enum/controller"
 	enumSvc "github.com/rescuebyte/rescuebyte-be/internal/app/enum/service"
+	productCtr "github.com/rescuebyte/rescuebyte-be/internal/app/product/controller"
+	productRepo "github.com/rescuebyte/rescuebyte-be/internal/app/product/repository"
+	productSvc "github.com/rescuebyte/rescuebyte-be/internal/app/product/service"
+	storeCtr "github.com/rescuebyte/rescuebyte-be/internal/app/store/controller"
+	storeRepo "github.com/rescuebyte/rescuebyte-be/internal/app/store/repository"
+	storeSvc "github.com/rescuebyte/rescuebyte-be/internal/app/store/service"
 	userCtr "github.com/rescuebyte/rescuebyte-be/internal/app/user/controller"
 	userRepo "github.com/rescuebyte/rescuebyte-be/internal/app/user/repository"
 	userSvc "github.com/rescuebyte/rescuebyte-be/internal/app/user/service"
@@ -99,6 +105,8 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 
 	// Repositories
 	userRepository := userRepo.NewUserRepository(dbGetter)
+	storeRepository := storeRepo.NewStoreRepository(dbGetter)
+	productRepository := productRepo.NewProductRepository(dbGetter)
 
 	// Services
 	enumService := enumSvc.NewEnumService()
@@ -109,6 +117,20 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 		validatorService,
 		jwtService,
 		googleOAuth,
+		uuidService,
+	)
+	storeService := storeSvc.NewStoreService(
+		transactor,
+		storeRepository,
+		userRepository,
+		validatorService,
+		uuidService,
+	)
+	productService := productSvc.NewProductService(
+		transactor,
+		productRepository,
+		storeRepository,
+		validatorService,
 		uuidService,
 	)
 
@@ -133,6 +155,8 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 	enumCtr.InitEnumController(v1, enumService)
 	authCtr.InitAuthController(v1, authService, middleware)
 	userCtr.InitUserController(v1, userService, middleware)
+	storeCtr.InitStoreController(v1, storeService, middleware)
+	productCtr.InitProductController(v1, productService, middleware)
 }
 
 // healthCheck godoc
