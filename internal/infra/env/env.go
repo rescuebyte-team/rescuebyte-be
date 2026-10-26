@@ -10,6 +10,7 @@ import (
 
 type Env struct {
 	AppEnv                  string        `mapstructure:"APP_ENV"`
+	AppLang                 string        `mapstructure:"APP_LANG"`
 	AppPort                 string        `mapstructure:"APP_PORT"`
 	AppURL                  string        `mapstructure:"APP_URL"`
 	FEAppURL                string        `mapstructure:"FE_APP_URL"`
@@ -62,6 +63,9 @@ func getEnv() *Env {
 func (env *Env) setDefaults() {
 	if env.AppEnv == "" {
 		env.AppEnv = "development"
+	}
+	if env.AppLang == "" {
+		env.AppLang = "en"
 	}
 	if env.AppPort == "" {
 		env.AppPort = "8080"
