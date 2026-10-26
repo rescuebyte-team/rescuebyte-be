@@ -164,12 +164,12 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 }
 
 // healthCheck godoc
-// @Summary Root health check endpoint
+// @Summary Health check endpoint
 // @Description Check API server status and liveness
-// @Tags System
+// @Tags Health Check
 // @Produce json
 // @Success 200 {object} response.Response{payload=map[string]string} "API is healthy"
-// @Router / [get]
+// @Router /health [get]
 func (s *httpServer) healthCheck(c fiber.Ctx) error {
 	return response.SendResponse(c, fiber.StatusOK, map[string]string{
 		"message": "RescueByte API is up and running",
