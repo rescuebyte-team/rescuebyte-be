@@ -42,7 +42,7 @@ tasks:
 
   migrate:create:
     desc: "Create new migration. Usage: task migrate:create -- name"
-    cmd: migrate create -ext sql -dir ./database/migrations -seq {{.CLI_ARGS}}
+    cmd: migrate create -ext sql -dir ./database/migrations -seq -digits 14 {{.CLI_ARGS}}
 
   docker:up:
     desc: "Start all services via Docker Compose"
