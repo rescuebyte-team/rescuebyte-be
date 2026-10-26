@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/enums"
 )
 
@@ -44,8 +45,23 @@ type UserResponse struct {
 	Email     string             `json:"email"`
 	Name      string             `json:"name"`
 	AvatarURL *string            `json:"avatar_url"`
-	Role      enums.UserRole     `json:"role"`
+	RoleID    int16              `json:"role_id"`
+	Role      string             `json:"role"`
 	Provider  enums.AuthProvider `json:"provider"`
 	CreatedAt time.Time          `json:"created_at"`
 	UpdatedAt time.Time          `json:"updated_at"`
+}
+
+func FormatToUserResponse(user entity.User) UserResponse {
+	return UserResponse{
+		ID:        user.ID,
+		Email:     user.Email,
+		Name:      user.Name,
+		AvatarURL: user.AvatarURL,
+		RoleID:    int16(user.RoleID),
+		Role:      enums.UserRoleMapIdx[user.RoleID].LongLabel.String(),
+		Provider:  user.Provider,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
 }

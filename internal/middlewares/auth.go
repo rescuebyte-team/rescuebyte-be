@@ -59,7 +59,7 @@ func (m *Middleware) OptionalAuth() fiber.Handler {
 }
 
 // RequireRoles grants access only to users who have one of the accepted roles
-func (m *Middleware) RequireRoles(acceptedRoles ...enums.UserRole) fiber.Handler {
+func (m *Middleware) RequireRoles(acceptedRoles ...enums.UserRoleIdx) fiber.Handler {
 	return func(ctx fiber.Ctx) error {
 		claims, ok := ctx.Locals("claims").(jwt.Claims)
 		if !ok {

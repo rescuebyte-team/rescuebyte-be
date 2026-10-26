@@ -45,7 +45,7 @@ func (s *authService) Register(ctx context.Context, req dto.RegisterRequest) (*d
 		Email:        req.Email,
 		PasswordHash: &passHashStr,
 		Name:         req.Name,
-		Role:         enums.RoleUser,
+		RoleID:       enums.RoleUserIdx,
 		Provider:     enums.ProviderLocal,
 		CreatedAt:    now,
 		UpdatedAt:    now,
@@ -55,12 +55,12 @@ func (s *authService) Register(ctx context.Context, req dto.RegisterRequest) (*d
 		return nil, err
 	}
 
-	accessToken, err := s.jwt.Create(user.ID, user.Name, user.Email, user.Role)
+	accessToken, err := s.jwt.Create(user.ID, user.Name, user.Email, user.RoleID)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := s.jwt.CreateRefreshToken(user.ID, user.Name, user.Email, user.Role)
+	refreshToken, err := s.jwt.CreateRefreshToken(user.ID, user.Name, user.Email, user.RoleID)
 	if err != nil {
 		return nil, err
 	}
@@ -79,15 +79,7 @@ func (s *authService) Register(ctx context.Context, req dto.RegisterRequest) (*d
 	}
 
 	return &dto.AuthResponse{
-		User: dto.UserResponse{
-			ID:        user.ID,
-			Email:     user.Email,
-			Name:      user.Name,
-			Role:      user.Role,
-			Provider:  user.Provider,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
-		},
+		User:         dto.FormatToUserResponse(user),
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
@@ -114,12 +106,12 @@ func (s *authService) Login(ctx context.Context, req dto.LoginRequest) (*dto.Aut
 		return nil, errx.ErrInvalidCredentials
 	}
 
-	accessToken, err := s.jwt.Create(user.ID, user.Name, user.Email, user.Role)
+	accessToken, err := s.jwt.Create(user.ID, user.Name, user.Email, user.RoleID)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := s.jwt.CreateRefreshToken(user.ID, user.Name, user.Email, user.Role)
+	refreshToken, err := s.jwt.CreateRefreshToken(user.ID, user.Name, user.Email, user.RoleID)
 	if err != nil {
 		return nil, err
 	}
@@ -139,16 +131,7 @@ func (s *authService) Login(ctx context.Context, req dto.LoginRequest) (*dto.Aut
 	}
 
 	return &dto.AuthResponse{
-		User: dto.UserResponse{
-			ID:        user.ID,
-			Email:     user.Email,
-			Name:      user.Name,
-			AvatarURL: user.AvatarURL,
-			Role:      user.Role,
-			Provider:  user.Provider,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
-		},
+		User:         dto.FormatToUserResponse(*user),
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
@@ -181,12 +164,12 @@ func (s *authService) RefreshToken(ctx context.Context, req dto.RefreshTokenRequ
 	}
 
 	// Revoke old token & generate new tokens atomically
-	newAccessToken, err := s.jwt.Create(user.ID, user.Name, user.Email, user.Role)
+	newAccessToken, err := s.jwt.Create(user.ID, user.Name, user.Email, user.RoleID)
 	if err != nil {
 		return nil, err
 	}
 
-	newRefreshToken, err := s.jwt.CreateRefreshToken(user.ID, user.Name, user.Email, user.Role)
+	newRefreshToken, err := s.jwt.CreateRefreshToken(user.ID, user.Name, user.Email, user.RoleID)
 	if err != nil {
 		return nil, err
 	}
@@ -212,16 +195,7 @@ func (s *authService) RefreshToken(ctx context.Context, req dto.RefreshTokenRequ
 	}
 
 	return &dto.AuthResponse{
-		User: dto.UserResponse{
-			ID:        user.ID,
-			Email:     user.Email,
-			Name:      user.Name,
-			AvatarURL: user.AvatarURL,
-			Role:      user.Role,
-			Provider:  user.Provider,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
-		},
+		User:         dto.FormatToUserResponse(*user),
 		AccessToken:  newAccessToken,
 		RefreshToken: newRefreshToken,
 	}, nil
@@ -292,7 +266,7 @@ func (s *authService) HandleGoogleCallback(ctx context.Context, query dto.Google
 				Email:      googleUser.Email,
 				Name:       googleUser.Name,
 				AvatarURL:  &googleUser.Picture,
-				Role:       enums.RoleUser,
+				RoleID:     enums.RoleUserIdx,
 				Provider:   enums.ProviderGoogle,
 				ProviderID: &googleUser.ID,
 				CreatedAt:  now,
@@ -305,12 +279,12 @@ func (s *authService) HandleGoogleCallback(ctx context.Context, query dto.Google
 		}
 	}
 
-	accessToken, err := s.jwt.Create(user.ID, user.Name, user.Email, user.Role)
+	accessToken, err := s.jwt.Create(user.ID, user.Name, user.Email, user.RoleID)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := s.jwt.CreateRefreshToken(user.ID, user.Name, user.Email, user.Role)
+	refreshToken, err := s.jwt.CreateRefreshToken(user.ID, user.Name, user.Email, user.RoleID)
 	if err != nil {
 		return nil, err
 	}
@@ -329,16 +303,7 @@ func (s *authService) HandleGoogleCallback(ctx context.Context, query dto.Google
 	}
 
 	return &dto.AuthResponse{
-		User: dto.UserResponse{
-			ID:        user.ID,
-			Email:     user.Email,
-			Name:      user.Name,
-			AvatarURL: user.AvatarURL,
-			Role:      user.Role,
-			Provider:  user.Provider,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
-		},
+		User:         dto.FormatToUserResponse(*user),
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
@@ -350,14 +315,6 @@ func (s *authService) GetMe(ctx context.Context, userID uuid.UUID) (*dto.UserRes
 		return nil, err
 	}
 
-	return &dto.UserResponse{
-		ID:        user.ID,
-		Email:     user.Email,
-		Name:      user.Name,
-		AvatarURL: user.AvatarURL,
-		Role:      user.Role,
-		Provider:  user.Provider,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}, nil
+	res := dto.FormatToUserResponse(*user)
+	return &res, nil
 }

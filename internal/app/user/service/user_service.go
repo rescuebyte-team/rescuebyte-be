@@ -14,16 +14,8 @@ func (s *userService) GetProfile(ctx context.Context, userID uuid.UUID) (*dto.Us
 		return nil, err
 	}
 
-	return &dto.UserResponse{
-		ID:        user.ID,
-		Email:     user.Email,
-		Name:      user.Name,
-		AvatarURL: user.AvatarURL,
-		Role:      user.Role,
-		Provider:  user.Provider,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}, nil
+	res := dto.FormatToUserResponse(*user)
+	return &res, nil
 }
 
 func (s *userService) UpdateProfile(ctx context.Context, userID uuid.UUID, req dto.UpdateProfileRequest) (*dto.UserResponse, error) {
@@ -45,16 +37,8 @@ func (s *userService) UpdateProfile(ctx context.Context, userID uuid.UUID, req d
 		return nil, err
 	}
 
-	return &dto.UserResponse{
-		ID:        user.ID,
-		Email:     user.Email,
-		Name:      user.Name,
-		AvatarURL: user.AvatarURL,
-		Role:      user.Role,
-		Provider:  user.Provider,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}, nil
+	res := dto.FormatToUserResponse(*user)
+	return &res, nil
 }
 
 func (s *userService) UpdateUserRole(ctx context.Context, req dto.UpdateUserRoleRequest) (*dto.UserResponse, error) {
@@ -67,20 +51,12 @@ func (s *userService) UpdateUserRole(ctx context.Context, req dto.UpdateUserRole
 		return nil, err
 	}
 
-	user.Role = req.Role
+	user.RoleID = req.RoleID
 
 	if err := s.userRepo.UpdateUser(ctx, *user); err != nil {
 		return nil, err
 	}
 
-	return &dto.UserResponse{
-		ID:        user.ID,
-		Email:     user.Email,
-		Name:      user.Name,
-		AvatarURL: user.AvatarURL,
-		Role:      user.Role,
-		Provider:  user.Provider,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}, nil
+	res := dto.FormatToUserResponse(*user)
+	return &res, nil
 }

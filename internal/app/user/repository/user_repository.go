@@ -16,14 +16,14 @@ import (
 
 var userSelectFields = []string{
 	"id", "email", "password_hash", "name", "avatar_url",
-	"role", "provider", "provider_id", "created_at", "updated_at",
+	"role_id", "provider", "provider_id", "created_at", "updated_at",
 }
 
 func (r *userRepository) CreateUser(ctx context.Context, user entity.User) error {
 	query, args, err := sq.
 		Insert("users").
-		Columns("id", "email", "password_hash", "name", "avatar_url", "role", "provider", "provider_id", "created_at", "updated_at").
-		Values(user.ID, user.Email, user.PasswordHash, user.Name, user.AvatarURL, user.Role, user.Provider, user.ProviderID, user.CreatedAt, user.UpdatedAt).
+		Columns("id", "email", "password_hash", "name", "avatar_url", "role_id", "provider", "provider_id", "created_at", "updated_at").
+		Values(user.ID, user.Email, user.PasswordHash, user.Name, user.AvatarURL, user.RoleID, user.Provider, user.ProviderID, user.CreatedAt, user.UpdatedAt).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
@@ -108,7 +108,7 @@ func (r *userRepository) UpdateUser(ctx context.Context, user entity.User) error
 		Update("users").
 		Set("name", user.Name).
 		Set("avatar_url", user.AvatarURL).
-		Set("role", user.Role).
+		Set("role_id", user.RoleID).
 		Set("updated_at", time.Now()).
 		Where(sq.Eq{"id": user.ID}).
 		PlaceholderFormat(sq.Dollar).

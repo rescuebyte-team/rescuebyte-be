@@ -12,12 +12,12 @@ type UpdateProfileRequest struct {
 }
 
 type UpdateUserRoleRequest struct {
-	UserID uuid.UUID      `json:"user_id" validate:"required"`
-	Role   enums.UserRole `json:"role" validate:"required,oneof=ADMIN USER"`
+	UserID uuid.UUID         `json:"user_id" validate:"required"`
+	RoleID enums.UserRoleIdx `json:"role_id" validate:"required,user_role"`
 }
 
 type GetUsersQuery struct {
-	Page  int             `query:"page"`
-	Limit int             `query:"limit"`
-	Role  *enums.UserRole `query:"role"`
+	Page   int                `query:"page"`
+	Limit  int                `query:"limit"`
+	RoleID *enums.UserRoleIdx `query:"role_id" validate:"omitempty,user_role"`
 }

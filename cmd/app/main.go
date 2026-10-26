@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/rescuebyte/rescuebyte-be/domain/enums"
 	"github.com/rescuebyte/rescuebyte-be/internal/infra/database"
 	"github.com/rescuebyte/rescuebyte-be/internal/infra/env"
 	redisConn "github.com/rescuebyte/rescuebyte-be/internal/infra/redis"
@@ -38,6 +39,8 @@ func main() {
 		log.Fatal(log.Fields{"error": err.Error()}, "[Main] Failed to load timezone")
 	}
 	time.Local = loc
+
+	enums.DefaultLanguage = env.AppEnv.AppLang
 
 	server := server.NewHTTPServer()
 	psqlDB := database.NewPgsqlConn()
