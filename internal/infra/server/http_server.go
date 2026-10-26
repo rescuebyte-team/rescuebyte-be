@@ -146,7 +146,11 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 	}))
 
 	// Root health check endpoint
-	s.app.Get("/", s.healthCheck)
+	s.app.Get("/", func(c fiber.Ctx) error {
+		return c.Redirect().Status(fiber.StatusMovedPermanently).To("/swagger/index.html")
+	})
+
+	s.app.Get("/health", s.healthCheck)
 
 	api := s.app.Group("/api")
 	v1 := api.Group("/v1")
