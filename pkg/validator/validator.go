@@ -45,6 +45,9 @@ func getValidator() Service {
 		}, "[Validator] Failed to register default translations")
 	}
 
+	registerCustomRules(v)
+	registerCustomTranslations(v, trans)
+
 	return &validatorImpl{
 		validator: v,
 		trans:     trans,
@@ -83,18 +86,19 @@ func (vi *validatorImpl) Validate(data interface{}) MultiError {
 		}
 	}
 
+	if customValidator, ok := data.(CustomValidator); ok {
+		customErrs := customValidator.CustomValidate()
+
+		for _, e := range customErrs {
+			res.Add(e)
+		}
+	}
+
 	if len(res) > 0 {
 		return res
 	}
 
 	return nil
-}
-
-type CustomValidationError struct {
-	Scope   string
-	Field   string
-	Tag     string
-	Message string
 }
 
 type FieldError struct {

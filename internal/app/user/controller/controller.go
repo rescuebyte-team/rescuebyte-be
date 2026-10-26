@@ -24,5 +24,5 @@ func InitUserController(
 	userGroup := router.Group("/users", middleware.RequireAuth())
 	userGroup.Get("/profile", userCtr.GetProfile)
 	userGroup.Put("/profile", userCtr.UpdateProfile)
-	userGroup.Patch("/role", middleware.RequireRoles(enums.RoleAdmin), userCtr.UpdateUserRole)
+	userGroup.Patch("/role", middleware.RequireRoles(enums.RoleAdminIdx), userCtr.UpdateUserRole)
 }
