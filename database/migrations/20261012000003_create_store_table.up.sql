@@ -21,9 +21,11 @@ CREATE TABLE IF NOT EXISTS stores (
     CONSTRAINT fk_stores_user_id
     FOREIGN KEY (user_id)
     REFERENCES users(id)
-    ON DELETE CASCADE
+    ON DELETE CASCADE,
+
+    CONSTRAINT uq_stores_user_id
+    UNIQUE (user_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_stores_user_id ON stores(user_id);
 CREATE INDEX IF NOT EXISTS idx_stores_status ON stores(status);
 CREATE INDEX IF NOT EXISTS idx_stores_city ON stores(city);
