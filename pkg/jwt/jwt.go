@@ -15,19 +15,19 @@ import (
 var ErrInvalidTokenType = errors.New("invalid token type")
 
 type Service interface {
-	Create(id uuid.UUID, name string, email string, role enums.UserRole) (string, error)
-	CreateRefreshToken(id uuid.UUID, name string, email string, role enums.UserRole) (string, error)
+	Create(id uuid.UUID, name string, email string, role enums.UserRoleIdx) (string, error)
+	CreateRefreshToken(id uuid.UUID, name string, email string, role enums.UserRoleIdx) (string, error)
 	Decode(tokenString string, claims *Claims) error
 	DecodeRefreshToken(tokenString string, claims *Claims) error
 }
 
 type Claims struct {
 	jwt.RegisteredClaims
-	ID        uuid.UUID      `json:"id"`
-	Name      string         `json:"name"`
-	Email     string         `json:"email"`
-	Role      enums.UserRole `json:"role"`
-	TokenType string         `json:"token_type,omitempty"`
+	ID        uuid.UUID         `json:"id"`
+	Name      string            `json:"name"`
+	Email     string            `json:"email"`
+	Role      enums.UserRoleIdx `json:"role"`
+	TokenType string            `json:"token_type,omitempty"`
 }
 
 type jwtImpl struct {
@@ -50,7 +50,7 @@ func (j *jwtImpl) generateToken(
 	id uuid.UUID,
 	name string,
 	email string,
-	role enums.UserRole,
+	role enums.UserRoleIdx,
 	tokenType string,
 	duration time.Duration,
 ) (string, error) {
@@ -81,11 +81,11 @@ func (j *jwtImpl) generateToken(
 	return signedToken, nil
 }
 
-func (j *jwtImpl) Create(id uuid.UUID, name string, email string, role enums.UserRole) (string, error) {
+func (j *jwtImpl) Create(id uuid.UUID, name string, email string, role enums.UserRoleIdx) (string, error) {
 	return j.generateToken(id, name, email, role, "access", j.ExpiredTime)
 }
 
-func (j *jwtImpl) CreateRefreshToken(id uuid.UUID, name string, email string, role enums.UserRole) (string, error) {
+func (j *jwtImpl) CreateRefreshToken(id uuid.UUID, name string, email string, role enums.UserRoleIdx) (string, error) {
 	return j.generateToken(id, name, email, role, "refresh", j.RefreshExpTime)
 }
 
