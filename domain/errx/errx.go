@@ -8,8 +8,8 @@ type RequestError struct {
 	StatusCode int            `json:"-"`
 	ErrorCode  string         `json:"error_code"`
 	Message    string         `json:"message"`
-	Location   string         `json:"-"`
-	Details    map[string]any `json:"-"`
+	Location   string         `json:"location,omitempty"`
+	Details    map[string]any `json:"details,omitempty"`
 	Err        error          `json:"-"`
 }
 
@@ -102,5 +102,10 @@ var (
 		fiber.StatusUnauthorized,
 		"claims_not_found",
 		"Authorization details are missing. Please try again.",
+	)
+	ErrInvalidTimeFormat = NewError(
+		fiber.StatusBadRequest,
+		"invalid_time_format",
+		"Invalid time format. Please use HH:mm or HH.mm format (e.g. 08:00 or 08.00).",
 	)
 )

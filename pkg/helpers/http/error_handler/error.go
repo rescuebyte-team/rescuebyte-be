@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
 	"github.com/rescuebyte/rescuebyte-be/pkg/helpers/http/response"
@@ -32,6 +33,25 @@ func ErrorHandler(c fiber.Ctx, err error) error {
 		}, "[ErrorHandler] Request error")
 
 		return response.SendResponse(c, reqErr.StatusCode, reqErr)
+	}
+
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		log.Error(log.Fields{
+			"request_id": c.GetRespHeader("X-Request-Id"),
+			"code":       pgErr.Code,
+			"message":    pgErr.Message,
+			"detail":     pgErr.Detail,
+		}, "[ErrorHandler] Database error")
+
+		switch pgErr.Code {
+		case "22007", "22008", "22P02": // Data exceptions (e.g. invalid time/date format)
+			return response.SendResponse(c, fiber.StatusBadRequest, errx.ErrBadRequest.WithMessage(pgErr.Message).WithError(pgErr))
+		case "23505": // Unique constraint violation
+			return response.SendResponse(c, fiber.StatusConflict, errx.NewError(fiber.StatusConflict, "duplicate_entry", pgErr.Detail).WithError(pgErr))
+		case "23503": // Foreign key constraint violation
+			return response.SendResponse(c, fiber.StatusBadRequest, errx.ErrBadRequest.WithMessage(pgErr.Detail).WithError(pgErr))
+		}
 	}
 
 	var fiberErr *fiber.Error
