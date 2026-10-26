@@ -9,6 +9,109 @@ definitions:
       user:
         $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UserResponse'
     type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CreateProductRequest:
+    properties:
+      description:
+        type: string
+      image_urls:
+        items:
+          type: string
+        type: array
+      main_image_url:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 2
+        type: string
+      variants:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateProductVariantRequest'
+        minItems: 1
+        type: array
+    required:
+    - name
+    - variants
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CreateProductVariantRequest:
+    properties:
+      current_stock:
+        minimum: 0
+        type: integer
+      initial_stock:
+        minimum: 0
+        type: integer
+      name:
+        maxLength: 100
+        type: string
+      normal_price:
+        minimum: 0
+        type: integer
+      rescue_price:
+        minimum: 0
+        type: integer
+      sequence:
+        minimum: 1
+        type: integer
+    required:
+    - current_stock
+    - initial_stock
+    - name
+    - normal_price
+    - rescue_price
+    - sequence
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CreateStoreRequest:
+    properties:
+      address:
+        type: string
+      city:
+        maxLength: 100
+        type: string
+      description:
+        type: string
+      district:
+        maxLength: 100
+        type: string
+      email:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        maxLength: 255
+        minLength: 2
+        type: string
+      operational_days:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+      operational_end:
+        description: e.g. "21:00"
+        type: string
+      operational_start:
+        description: e.g. "08:00"
+        type: string
+      profile_picture_url:
+        type: string
+      whatsapp_number:
+        maxLength: 20
+        minLength: 8
+        type: string
+    required:
+    - address
+    - city
+    - district
+    - email
+    - latitude
+    - longitude
+    - name
+    - operational_days
+    - operational_end
+    - operational_start
+    - whatsapp_number
+    type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.GoogleAuthURLResponse:
     properties:
       auth_url:
@@ -25,6 +128,75 @@ definitions:
     required:
     - email
     - password
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.ProductImageResponse:
+    properties:
+      display_order:
+        type: integer
+      id:
+        type: string
+      image_url:
+        type: string
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.ProductResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      images:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductImageResponse'
+        type: array
+      is_active:
+        type: boolean
+      main_image_url:
+        type: string
+      min_normal_price:
+        type: integer
+      min_rescue_price:
+        type: integer
+      name:
+        type: string
+      store_id:
+        type: string
+      total_current_stock:
+        type: integer
+      total_initial_stock:
+        type: integer
+      updated_at:
+        type: string
+      variants:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductVariantResponse'
+        type: array
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.ProductVariantResponse:
+    properties:
+      created_at:
+        type: string
+      current_stock:
+        type: integer
+      id:
+        type: string
+      initial_stock:
+        type: integer
+      is_active:
+        type: boolean
+      name:
+        type: string
+      normal_price:
+        type: integer
+      product_id:
+        type: string
+      rescue_price:
+        type: integer
+      sequence:
+        type: integer
+      updated_at:
+        type: string
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.RefreshTokenRequest:
     properties:
@@ -50,6 +222,67 @@ definitions:
     - name
     - password
     type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.StoreResponse:
+    properties:
+      address:
+        type: string
+      city:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      district:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      operational_days:
+        items:
+          type: integer
+        type: array
+      operational_end:
+        type: string
+      operational_start:
+        type: string
+      profile_picture_url:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      whatsapp_number:
+        type: string
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.ToggleProductStatusRequest:
+    properties:
+      is_active:
+        type: boolean
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateProductRequest:
+    properties:
+      description:
+        type: string
+      is_active:
+        type: boolean
+      main_image_url:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 2
+        type: string
+    required:
+    - name
+    type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateProfileRequest:
     properties:
       avatar_url:
@@ -60,6 +293,66 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateStoreOperationalRequest:
+    properties:
+      operational_days:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+      operational_end:
+        type: string
+      operational_start:
+        type: string
+      status:
+        enum:
+        - ACTIVE
+        - INACTIVE
+        type: string
+    required:
+    - operational_days
+    - operational_end
+    - operational_start
+    - status
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateStoreProfileRequest:
+    properties:
+      address:
+        type: string
+      city:
+        maxLength: 100
+        type: string
+      description:
+        type: string
+      district:
+        maxLength: 100
+        type: string
+      email:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        maxLength: 255
+        minLength: 2
+        type: string
+      profile_picture_url:
+        type: string
+      whatsapp_number:
+        maxLength: 20
+        minLength: 8
+        type: string
+    required:
+    - address
+    - city
+    - district
+    - email
+    - latitude
+    - longitude
+    - name
+    - whatsapp_number
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateUserRoleRequest:
     properties:
@@ -149,7 +442,6 @@ definitions:
         example: 550e8400-e29b-41d4-a716-446655440000
         type: string
     type: object
-host: localhost:8080
 info:
   contact:
     email: support@rescuebyte.com
@@ -460,6 +752,534 @@ paths:
       summary: Get system enums
       tags:
       - Enums
+  /api/v1/products:
+    post:
+      consumes:
+      - application/json
+      description: Create a new food rescue product with variants and optional gallery
+        images
+      parameters:
+      - description: Create Product Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created product details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductResponse'
+              type: object
+        "400":
+          description: Bad request or validation error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Store not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new product
+      tags:
+      - Product
+  /api/v1/products/{id}:
+    delete:
+      description: Delete a product and its associated variants and images
+      parameters:
+      - description: Product UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product successfully deleted
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "403":
+          description: Forbidden - Store access unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Product not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete product
+      tags:
+      - Product
+    get:
+      description: Retrieve product detail by its UUID
+      parameters:
+      - description: Product UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductResponse'
+              type: object
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Product not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      summary: Get product detail
+      tags:
+      - Product
+    put:
+      consumes:
+      - application/json
+      description: Update product information
+      parameters:
+      - description: Product UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Product Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated product details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductResponse'
+              type: object
+        "400":
+          description: Bad request or validation error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "403":
+          description: Forbidden - Store access unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Product not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update product
+      tags:
+      - Product
+  /api/v1/products/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Toggle product active/inactive state
+      parameters:
+      - description: Product UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Toggle Status Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ToggleProductStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated product details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductResponse'
+              type: object
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "403":
+          description: Forbidden - Store access unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Product not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Toggle product status
+      tags:
+      - Product
+  /api/v1/products/me/list:
+    get:
+      description: Retrieve a list of products belonging to the merchant's store with
+        filtering and search
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search by product name
+        in: query
+        name: search
+        type: string
+      - description: 'Filter tab: all, active, low_stock, out_of_stock'
+        in: query
+        name: tab
+        type: string
+      - description: 'Sort order: newest, oldest'
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of products
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  items:
+                    $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Store not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List merchant products
+      tags:
+      - Product
+  /api/v1/stores:
+    post:
+      consumes:
+      - application/json
+      description: Register a new store for the authenticated user
+      parameters:
+      - description: Create Store Request Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateStoreRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created Store details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.StoreResponse'
+              type: object
+        "400":
+          description: Bad request or validation error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized or missing token
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "409":
+          description: User already has a store
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new store
+      tags:
+      - Store
+  /api/v1/stores/{id}:
+    get:
+      description: Retrieve public store profile by its UUID
+      parameters:
+      - description: Store UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Store profile details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.StoreResponse'
+              type: object
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Store not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      summary: Get store by ID
+      tags:
+      - Store
+  /api/v1/stores/me/operational:
+    put:
+      consumes:
+      - application/json
+      description: Update operational hours, operating days, and status
+      parameters:
+      - description: Update Operational Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateStoreOperationalRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated store details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.StoreResponse'
+              type: object
+        "400":
+          description: Bad request or validation error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Store not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update store operational info
+      tags:
+      - Store
+  /api/v1/stores/me/profile:
+    get:
+      description: Retrieve the store profile of the currently logged-in user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Store profile details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.StoreResponse'
+              type: object
+        "401":
+          description: Unauthorized or missing token
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Store not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get authenticated user's store
+      tags:
+      - Store
+    put:
+      consumes:
+      - application/json
+      description: Update basic store details (name, description, contact, location)
+      parameters:
+      - description: Update Store Profile Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateStoreProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated store details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.StoreResponse'
+              type: object
+        "400":
+          description: Bad request or validation error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Store not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update store profile
+      tags:
+      - Store
+  /api/v1/stores/me/status:
+    patch:
+      description: Switch store status between ACTIVE and INACTIVE
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated store with toggled status
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.StoreResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Store not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Toggle store active status
+      tags:
+      - Store
   /api/v1/users/profile:
     get:
       description: Retrieve the profile of the currently authenticated user
