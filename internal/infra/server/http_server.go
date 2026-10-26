@@ -10,10 +10,11 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/requestid"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
-
 	_ "github.com/rescuebyte/rescuebyte-be/docs"
 	authCtr "github.com/rescuebyte/rescuebyte-be/internal/app/auth/controller"
 	authSvc "github.com/rescuebyte/rescuebyte-be/internal/app/auth/service"
+	enumCtr "github.com/rescuebyte/rescuebyte-be/internal/app/enum/controller"
+	enumSvc "github.com/rescuebyte/rescuebyte-be/internal/app/enum/service"
 	userCtr "github.com/rescuebyte/rescuebyte-be/internal/app/user/controller"
 	userRepo "github.com/rescuebyte/rescuebyte-be/internal/app/user/repository"
 	userSvc "github.com/rescuebyte/rescuebyte-be/internal/app/user/service"
@@ -100,6 +101,7 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 	userRepository := userRepo.NewUserRepository(dbGetter)
 
 	// Services
+	enumService := enumSvc.NewEnumService()
 	userService := userSvc.NewUserService(transactor, userRepository, validatorService)
 	authService := authSvc.NewAuthService(
 		transactor,
@@ -128,6 +130,7 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 	v1 := api.Group("/v1")
 
 	// Domain Controllers Initialization (mounting endpoints within their respective modules)
+	enumCtr.InitEnumController(v1, enumService)
 	authCtr.InitAuthController(v1, authService, middleware)
 	userCtr.InitUserController(v1, userService, middleware)
 }

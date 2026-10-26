@@ -429,6 +429,37 @@ paths:
       summary: Register new user account
       tags:
       - Auth
+  /api/v1/enums:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve system enums and lookup values (optional filter by comma-separated
+        types)
+      parameters:
+      - description: Comma-separated enum types filter (e.g. user_role,auth_provider)
+        in: query
+        name: types
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Enums retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      summary: Get system enums
+      tags:
+      - Enums
   /api/v1/users/profile:
     get:
       description: Retrieve the profile of the currently authenticated user

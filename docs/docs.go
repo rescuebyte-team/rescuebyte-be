@@ -464,6 +464,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/enums": {
+            "get": {
+                "description": "Retrieve system enums and lookup values (optional filter by comma-separated types)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Enums"
+                ],
+                "summary": "Get system enums",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Comma-separated enum types filter (e.g. user_role,auth_provider)",
+                        "name": "types",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Enums retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/users/profile": {
             "get": {
                 "security": [
@@ -762,20 +812,12 @@ const docTemplate = `{
         "github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateUserRoleRequest": {
             "type": "object",
             "required": [
-                "role",
+                "role_id",
                 "user_id"
             ],
             "properties": {
-                "role": {
-                    "enum": [
-                        "ADMIN",
-                        "USER"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_enums.UserRole"
-                        }
-                    ]
+                "role_id": {
+                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_enums.UserRoleIdx"
                 },
                 "user_id": {
                     "type": "string"
@@ -804,7 +846,10 @@ const docTemplate = `{
                     "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_enums.AuthProvider"
                 },
                 "role": {
-                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_enums.UserRole"
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"
@@ -822,15 +867,20 @@ const docTemplate = `{
                 "ProviderGoogle"
             ]
         },
-        "github_com_rescuebyte_rescuebyte-be_domain_enums.UserRole": {
-            "type": "string",
+        "github_com_rescuebyte_rescuebyte-be_domain_enums.UserRoleIdx": {
+            "type": "integer",
+            "format": "int32",
             "enum": [
-                "ADMIN",
-                "USER"
+                0,
+                1,
+                2,
+                3
             ],
             "x-enum-varnames": [
-                "RoleAdmin",
-                "RoleUser"
+                "RoleUnknownIdx",
+                "RoleUserIdx",
+                "RoleAdminIdx",
+                "RoleSellerIdx"
             ]
         },
         "github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorDetail": {
