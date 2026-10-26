@@ -52,6 +52,14 @@ func formatErrorPayload(payload any) any {
 
 	var reqErr *errx.RequestError
 	if !errors.As(err, &reqErr) {
+		if env.AppEnv.AppEnv == "production" {
+			return map[string]any{
+				"error": map[string]any{
+					"message": "Something went wrong on our end. Please try again later.",
+				},
+			}
+		}
+
 		return map[string]any{
 			"error": map[string]any{
 				"message": "unknown error",
