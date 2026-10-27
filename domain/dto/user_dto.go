@@ -7,8 +7,11 @@ import (
 )
 
 type UpdateProfileRequest struct {
-	Name      string  `json:"name" validate:"required,min=2,max=100"`
-	AvatarURL *string `json:"avatar_url" validate:"omitempty,url"`
+	Name        string           `json:"name" validate:"required,min=2,max=100"`
+	AvatarURL   *string          `json:"avatar_url" validate:"omitempty,url"`
+	PhoneNumber *string          `json:"phone_number" validate:"omitempty,min=8,max=20"`
+	Gender      *enums.GenderIdx `json:"gender" validate:"omitempty,gender"`
+	DateOfBirth *string          `json:"date_of_birth" validate:"omitempty,datetime=2006-01-02"`
 }
 
 type UpdateUserRoleRequest struct {

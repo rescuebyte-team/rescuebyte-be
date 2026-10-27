@@ -41,27 +41,52 @@ type AuthResponse struct {
 }
 
 type UserResponse struct {
-	ID        uuid.UUID          `json:"id"`
-	Email     string             `json:"email"`
-	Name      string             `json:"name"`
-	AvatarURL *string            `json:"avatar_url"`
-	RoleID    int16              `json:"role_id"`
-	Role      string             `json:"role"`
-	Provider  enums.AuthProvider `json:"provider"`
-	CreatedAt time.Time          `json:"created_at"`
-	UpdatedAt time.Time          `json:"updated_at"`
+	ID          uuid.UUID          `json:"id"`
+	Email       string             `json:"email"`
+	Name        string             `json:"name"`
+	AvatarURL   *string            `json:"avatar_url"`
+	RoleID      int16              `json:"role_id"`
+	Role        string             `json:"role"`
+	Provider    enums.AuthProvider `json:"provider"`
+	PhoneNumber *string            `json:"phone_number"`
+	Gender      *int16             `json:"gender"`
+	GenderName  *string            `json:"gender_name,omitempty"`
+	DateOfBirth *string            `json:"date_of_birth"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 func FormatToUserResponse(user entity.User) UserResponse {
+	var genderID *int16
+	var genderName *string
+	if user.Gender != nil && *user.Gender != enums.GenderUnknownIdx {
+		gid := int16(*user.Gender)
+		genderID = &gid
+		if gVal, ok := enums.GenderMapIdx[*user.Gender]; ok {
+			name := gVal.LongLabel.String()
+			genderName = &name
+		}
+	}
+
+	var dob *string
+	if user.DateOfBirth != nil {
+		formatted := user.DateOfBirth.Format("2006-01-02")
+		dob = &formatted
+	}
+
 	return UserResponse{
-		ID:        user.ID,
-		Email:     user.Email,
-		Name:      user.Name,
-		AvatarURL: user.AvatarURL,
-		RoleID:    int16(user.RoleID),
-		Role:      enums.UserRoleMapIdx[user.RoleID].LongLabel.String(),
-		Provider:  user.Provider,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		ID:          user.ID,
+		Email:       user.Email,
+		Name:        user.Name,
+		AvatarURL:   user.AvatarURL,
+		RoleID:      int16(user.RoleID),
+		Role:        enums.UserRoleMapIdx[user.RoleID].LongLabel.String(),
+		Provider:    user.Provider,
+		PhoneNumber: user.PhoneNumber,
+		Gender:      genderID,
+		GenderName:  genderName,
+		DateOfBirth: dob,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
 	}
 }
