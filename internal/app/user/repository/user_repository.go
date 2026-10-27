@@ -16,14 +16,23 @@ import (
 
 var userSelectFields = []string{
 	"id", "email", "password_hash", "name", "avatar_url",
-	"role_id", "provider", "provider_id", "created_at", "updated_at",
+	"role_id", "provider", "provider_id", "phone_number", "gender", "date_of_birth",
+	"created_at", "updated_at",
 }
 
 func (r *userRepository) CreateUser(ctx context.Context, user entity.User) error {
 	query, args, err := sq.
 		Insert("users").
-		Columns("id", "email", "password_hash", "name", "avatar_url", "role_id", "provider", "provider_id", "created_at", "updated_at").
-		Values(user.ID, user.Email, user.PasswordHash, user.Name, user.AvatarURL, user.RoleID, user.Provider, user.ProviderID, user.CreatedAt, user.UpdatedAt).
+		Columns(
+			"id", "email", "password_hash", "name", "avatar_url",
+			"role_id", "provider", "provider_id", "phone_number", "gender", "date_of_birth",
+			"created_at", "updated_at",
+		).
+		Values(
+			user.ID, user.Email, user.PasswordHash, user.Name, user.AvatarURL,
+			user.RoleID, user.Provider, user.ProviderID, user.PhoneNumber, user.Gender, user.DateOfBirth,
+			user.CreatedAt, user.UpdatedAt,
+		).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
@@ -109,6 +118,9 @@ func (r *userRepository) UpdateUser(ctx context.Context, user entity.User) error
 		Set("name", user.Name).
 		Set("avatar_url", user.AvatarURL).
 		Set("role_id", user.RoleID).
+		Set("phone_number", user.PhoneNumber).
+		Set("gender", user.Gender).
+		Set("date_of_birth", user.DateOfBirth).
 		Set("updated_at", time.Now()).
 		Where(sq.Eq{"id": user.ID}).
 		PlaceholderFormat(sq.Dollar).

@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 
 	"github.com/rescuebyte/rescuebyte-be/domain/dto"
+	"github.com/rescuebyte/rescuebyte-be/domain/errx"
 )
 
 func (s *userService) GetProfile(ctx context.Context, userID uuid.UUID) (*dto.UserResponse, error) {
@@ -30,7 +32,32 @@ func (s *userService) UpdateProfile(ctx context.Context, userID uuid.UUID, req d
 
 	user.Name = req.Name
 	if req.AvatarURL != nil {
-		user.AvatarURL = req.AvatarURL
+		if *req.AvatarURL == "" {
+			user.AvatarURL = nil
+		} else {
+			user.AvatarURL = req.AvatarURL
+		}
+	}
+	if req.PhoneNumber != nil {
+		if *req.PhoneNumber == "" {
+			user.PhoneNumber = nil
+		} else {
+			user.PhoneNumber = req.PhoneNumber
+		}
+	}
+	if req.Gender != nil {
+		user.Gender = req.Gender
+	}
+	if req.DateOfBirth != nil {
+		if *req.DateOfBirth == "" {
+			user.DateOfBirth = nil
+		} else {
+			parsedDate, err := time.Parse("2006-01-02", *req.DateOfBirth)
+			if err != nil {
+				return nil, errx.ErrBadRequest.WithMessage("format date_of_birth tidak valid (harus YYYY-MM-DD)")
+			}
+			user.DateOfBirth = &parsedDate
+		}
 	}
 
 	if err := s.userRepo.UpdateUser(ctx, *user); err != nil {
