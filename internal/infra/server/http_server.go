@@ -18,6 +18,8 @@ import (
 	productCtr "github.com/rescuebyte/rescuebyte-be/internal/app/product/controller"
 	productRepo "github.com/rescuebyte/rescuebyte-be/internal/app/product/repository"
 	productSvc "github.com/rescuebyte/rescuebyte-be/internal/app/product/service"
+	storageCtr "github.com/rescuebyte/rescuebyte-be/internal/app/storage/controller"
+	storageSvc "github.com/rescuebyte/rescuebyte-be/internal/app/storage/service"
 	storeCtr "github.com/rescuebyte/rescuebyte-be/internal/app/store/controller"
 	storeRepo "github.com/rescuebyte/rescuebyte-be/internal/app/store/repository"
 	storeSvc "github.com/rescuebyte/rescuebyte-be/internal/app/store/service"
@@ -31,6 +33,7 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/pkg/jwt"
 	"github.com/rescuebyte/rescuebyte-be/pkg/log"
 	"github.com/rescuebyte/rescuebyte-be/pkg/oauth"
+	"github.com/rescuebyte/rescuebyte-be/pkg/supabase"
 	"github.com/rescuebyte/rescuebyte-be/pkg/uuid"
 	"github.com/rescuebyte/rescuebyte-be/pkg/validator"
 )
@@ -99,6 +102,7 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 	validatorService := validator.Validator
 	jwtService := jwt.JWT
 	googleOAuth := oauth.GoogleOAuth
+	supabaseStorage := supabase.SupabaseStorage
 
 	dbGetter := database.NewDBGetter(db)
 	transactor := database.NewTransactor(db)
@@ -133,6 +137,10 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 		validatorService,
 		uuidService,
 	)
+	storageService := storageSvc.NewStorageService(
+		supabaseStorage,
+		uuidService,
+	)
 
 	// Middlewares
 	middleware := middlewares.NewMiddleware(jwtService)
@@ -160,6 +168,7 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 	userCtr.InitUserController(v1, userService, middleware)
 	storeCtr.InitStoreController(v1, storeService, middleware)
 	productCtr.InitProductController(v1, productService, middleware)
+	storageCtr.InitStorageController(v1, storageService, middleware)
 }
 
 // healthCheck godoc

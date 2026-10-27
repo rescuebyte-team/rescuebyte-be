@@ -364,6 +364,17 @@ definitions:
     - role_id
     - user_id
     type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.UploadResponse:
+    properties:
+      content_type:
+        type: string
+      filename:
+        type: string
+      size:
+        type: integer
+      url:
+        type: string
+    type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.UserResponse:
     properties:
       avatar_url:
@@ -1026,6 +1037,100 @@ paths:
       summary: List merchant products
       tags:
       - Product
+  /api/v1/storage/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a single image file (JPEG, PNG, WebP) to Supabase Storage
+      parameters:
+      - description: 'Target folder: products, stores, avatars (default: products)'
+        in: formData
+        name: folder
+        type: string
+      - description: Image file to upload (max 5MB for products, 2MB for stores/avatars)
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Uploaded image details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UploadResponse'
+              type: object
+        "400":
+          description: Bad request or validation error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Storage upload failed
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload an image
+      tags:
+      - Storage
+  /api/v1/storage/upload-multiple:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload multiple image files (JPEG, PNG, WebP) to Supabase Storage
+        (max 5 files)
+      parameters:
+      - description: 'Target folder: products, stores, avatars (default: products)'
+        in: formData
+        name: folder
+        type: string
+      - collectionFormat: csv
+        description: Image files to upload
+        in: formData
+        items:
+          type: file
+        name: files
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: List of uploaded images details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  items:
+                    $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UploadResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad request or validation error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Storage upload failed
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload multiple images
+      tags:
+      - Storage
   /api/v1/stores:
     post:
       consumes:
