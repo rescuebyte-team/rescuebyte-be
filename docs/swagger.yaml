@@ -287,9 +287,17 @@ definitions:
     properties:
       avatar_url:
         type: string
+      date_of_birth:
+        type: string
+      gender:
+        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_enums.GenderIdx'
       name:
         maxLength: 100
         minLength: 2
+        type: string
+      phone_number:
+        maxLength: 20
+        minLength: 8
         type: string
     required:
     - name
@@ -381,11 +389,19 @@ definitions:
         type: string
       created_at:
         type: string
+      date_of_birth:
+        type: string
       email:
+        type: string
+      gender:
+        type: integer
+      gender_name:
         type: string
       id:
         type: string
       name:
+        type: string
+      phone_number:
         type: string
       provider:
         $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_enums.AuthProvider'
@@ -404,6 +420,17 @@ definitions:
     x-enum-varnames:
     - ProviderLocal
     - ProviderGoogle
+  github_com_rescuebyte_rescuebyte-be_domain_enums.GenderIdx:
+    enum:
+    - 0
+    - 1
+    - 2
+    format: int32
+    type: integer
+    x-enum-varnames:
+    - GenderUnknownIdx
+    - GenderMaleIdx
+    - GenderFemaleIdx
   github_com_rescuebyte_rescuebyte-be_domain_enums.UserRoleIdx:
     enum:
     - 0

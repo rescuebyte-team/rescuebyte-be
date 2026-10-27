@@ -2160,10 +2160,21 @@ const docTemplate = `{
                 "avatar_url": {
                     "type": "string"
                 },
+                "date_of_birth": {
+                    "type": "string"
+                },
+                "gender": {
+                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_enums.GenderIdx"
+                },
                 "name": {
                     "type": "string",
                     "maxLength": 100,
                     "minLength": 2
+                },
+                "phone_number": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8
                 }
             }
         },
@@ -2290,13 +2301,25 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "date_of_birth": {
+                    "type": "string"
+                },
                 "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "integer"
+                },
+                "gender_name": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "phone_number": {
                     "type": "string"
                 },
                 "provider": {
@@ -2322,6 +2345,20 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "ProviderLocal",
                 "ProviderGoogle"
+            ]
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_enums.GenderIdx": {
+            "type": "integer",
+            "format": "int32",
+            "enum": [
+                0,
+                1,
+                2
+            ],
+            "x-enum-varnames": [
+                "GenderUnknownIdx",
+                "GenderMaleIdx",
+                "GenderFemaleIdx"
             ]
         },
         "github_com_rescuebyte_rescuebyte-be_domain_enums.UserRoleIdx": {
