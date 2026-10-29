@@ -14,7 +14,7 @@ type ProductRepository interface {
 	CreateProductVariants(ctx context.Context, variants []entity.ProductVariant) error
 	CreateProductImages(ctx context.Context, images []entity.ProductImage) error
 	GetProductByID(ctx context.Context, id uuid.UUID) (*entity.Product, error)
-	GetAllProducts(ctx context.Context, query dto.GetAllProductsQuery) ([]entity.Product, int64, error)
+	GetAllProducts(ctx context.Context, query dto.GetAllProductsQuery) ([]entity.ProductCardItem, int64, error)
 	GetProductsByStoreID(ctx context.Context, storeID uuid.UUID, query dto.GetProductsQuery) ([]entity.Product, int64, error)
 	GetVariantsByProductIDs(ctx context.Context, productIDs []uuid.UUID) (map[uuid.UUID][]entity.ProductVariant, error)
 	GetImagesByProductIDs(ctx context.Context, productIDs []uuid.UUID) (map[uuid.UUID][]entity.ProductImage, error)
