@@ -83,6 +83,34 @@ func (c *productController) GetMyProducts(ctx fiber.Ctx) error {
 	})
 }
 
+// GetAllProducts godoc
+// @Summary Get all products
+// @Description Retrieve a list of active products with optional filtering by store_id and product name
+// @Tags Product
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(10)
+// @Param store_id query string false "Filter by store UUID"
+// @Param nama query string false "Filter by product name"
+// @Param name query string false "Alias filter by product name"
+// @Success 200 {object} response.Response{payload=dto.GetProductsResponse} "List of products with pagination metadata"
+// @Failure 400 {object} response.ErrorResponse "Bad request or validation error"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /api/v1/products [get]
+func (c *productController) GetAllProducts(ctx fiber.Ctx) error {
+	var query dto.GetAllProductsQuery
+	if err := ctx.Bind().Query(&query); err != nil {
+		return errx.ErrBadRequest.WithError(err)
+	}
+
+	res, err := c.productService.GetAllProducts(ctx.Context(), query)
+	if err != nil {
+		return err
+	}
+
+	return response.SendResponse(ctx, fiber.StatusOK, res)
+}
+
 // GetProductDetail godoc
 // @Summary Get product detail
 // @Description Retrieve product detail by its UUID

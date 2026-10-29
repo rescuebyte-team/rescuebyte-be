@@ -9,6 +9,7 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/domain/dto"
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
+	"github.com/rescuebyte/rescuebyte-be/domain/helpers/pagination"
 )
 
 func (s *productService) CreateProduct(ctx context.Context, userID uuid.UUID, req dto.CreateProductRequest) (*dto.ProductResponse, error) {
@@ -104,6 +105,53 @@ func (s *productService) CreateProduct(ctx context.Context, userID uuid.UUID, re
 
 	res := dto.FormatToProductResponse(product)
 	return &res, nil
+}
+
+func (s *productService) GetAllProducts(ctx context.Context, query dto.GetAllProductsQuery) (dto.GetProductsResponse, error) {
+	if err := s.validator.Validate(query); err != nil {
+		return dto.GetProductsResponse{}, err
+	}
+
+	pagination.Normalize(&query.Limit, &query.Page, &query.Offset, "product")
+
+	products, total, err := s.productRepo.GetAllProducts(ctx, query)
+	if err != nil {
+		return dto.GetProductsResponse{}, err
+	}
+
+	if len(products) == 0 {
+		return dto.GetProductsResponse{
+			Products: []dto.ProductResponse{},
+			Meta:     pagination.NewPaginationResponse(total, query.Page, query.Limit),
+		}, nil
+	}
+
+	productIDs := make([]uuid.UUID, 0, len(products))
+	for _, p := range products {
+		productIDs = append(productIDs, p.ID)
+	}
+
+	variantMap, err := s.productRepo.GetVariantsByProductIDs(ctx, productIDs)
+	if err != nil {
+		return dto.GetProductsResponse{}, err
+	}
+
+	imageMap, err := s.productRepo.GetImagesByProductIDs(ctx, productIDs)
+	if err != nil {
+		return dto.GetProductsResponse{}, err
+	}
+
+	responses := make([]dto.ProductResponse, 0, len(products))
+	for _, p := range products {
+		p.Variants = variantMap[p.ID]
+		p.Images = imageMap[p.ID]
+		responses = append(responses, dto.FormatToProductResponse(p))
+	}
+
+	return dto.GetProductsResponse{
+		Products: responses,
+		Meta:     pagination.NewPaginationResponse(total, query.Page, query.Limit),
+	}, nil
 }
 
 func (s *productService) GetMyProducts(ctx context.Context, userID uuid.UUID, query dto.GetProductsQuery) ([]dto.ProductResponse, int64, error) {

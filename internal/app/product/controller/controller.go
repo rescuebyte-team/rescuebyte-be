@@ -22,7 +22,8 @@ func InitProductController(
 
 	productGroup := router.Group("/products")
 
-	// Public product detail
+	// Public product endpoints
+	productGroup.Get("", ctr.GetAllProducts)
 	productGroup.Get("/:id", ctr.GetProductDetail)
 
 	// Protected merchant product operations

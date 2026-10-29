@@ -110,6 +110,65 @@ func (r *productRepository) GetProductByID(ctx context.Context, id uuid.UUID) (*
 	return &product, nil
 }
 
+func (r *productRepository) GetAllProducts(ctx context.Context, query dto.GetAllProductsQuery) ([]entity.Product, int64, error) {
+	builder := sq.
+		Select("p.id", "p.store_id", "p.name", "p.description", "p.main_image_url", "p.is_active", "p.created_at", "p.updated_at").
+		From("products p").
+		Where(sq.Eq{"p.is_active": true})
+
+	countBuilder := sq.
+		Select("COUNT(DISTINCT p.id)").
+		From("products p").
+		Where(sq.Eq{"p.is_active": true})
+
+	if query.StoreID != "" {
+		if storeUUID, err := uuid.Parse(query.StoreID); err == nil {
+			builder = builder.Where(sq.Eq{"p.store_id": storeUUID})
+			countBuilder = countBuilder.Where(sq.Eq{"p.store_id": storeUUID})
+		}
+	}
+
+	searchName := query.Nama
+	if searchName == "" {
+		searchName = query.Name
+	}
+	if searchName != "" {
+		searchPattern := fmt.Sprintf("%%%s%%", searchName)
+		builder = builder.Where(sq.ILike{"p.name": searchPattern})
+		countBuilder = countBuilder.Where(sq.ILike{"p.name": searchPattern})
+	}
+
+	// Count total
+	countSql, countArgs, err := countBuilder.PlaceholderFormat(sq.Dollar).ToSql()
+	if err != nil {
+		return nil, 0, err
+	}
+	var total int64
+	if err := r.dbGetter(ctx).GetContext(ctx, &total, countSql, countArgs...); err != nil {
+		return nil, 0, err
+	}
+
+	// Sorting
+	builder = builder.OrderBy("p.created_at DESC")
+
+	// Pagination
+	if query.Limit > 0 {
+		builder = builder.Limit(query.Limit).Offset(query.Offset)
+	}
+
+	listSql, listArgs, err := builder.PlaceholderFormat(sq.Dollar).ToSql()
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var products []entity.Product
+	if err := r.dbGetter(ctx).SelectContext(ctx, &products, listSql, listArgs...); err != nil {
+		return nil, 0, err
+	}
+
+	return products, total, nil
+}
+
 func (r *productRepository) GetProductsByStoreID(ctx context.Context, storeID uuid.UUID, query dto.GetProductsQuery) ([]entity.Product, int64, error) {
 	builder := sq.
 		Select("p.id", "p.store_id", "p.name", "p.description", "p.main_image_url", "p.is_active", "p.created_at", "p.updated_at").
