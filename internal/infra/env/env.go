@@ -35,6 +35,9 @@ type Env struct {
 	SupabaseURL             string        `mapstructure:"SUPABASE_URL"`
 	SupabaseKey             string        `mapstructure:"SUPABASE_KEY"`
 	SupabaseStorageBucket   string        `mapstructure:"SUPABASE_STORAGE_BUCKET"`
+	MidtransServerKey       string        `mapstructure:"MIDTRANS_SERVER_KEY"`
+	MidtransClientKey       string        `mapstructure:"MIDTRANS_CLIENT_KEY"`
+	MidtransIsProduction    bool          `mapstructure:"MIDTRANS_IS_PRODUCTION"`
 }
 
 var AppEnv = getEnv()
