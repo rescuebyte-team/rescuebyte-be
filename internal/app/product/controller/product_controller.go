@@ -85,7 +85,7 @@ func (c *productController) GetMyProducts(ctx fiber.Ctx) error {
 
 // GetAllProducts godoc
 // @Summary Get all products
-// @Description Retrieve a list of active products with optional filtering by store_id and product name
+// @Description Retrieve a list of active products for marketplace card display with optional filtering
 // @Tags Product
 // @Produce json
 // @Param page query int false "Page number" default(1)
@@ -93,6 +93,10 @@ func (c *productController) GetMyProducts(ctx fiber.Ctx) error {
 // @Param store_id query string false "Filter by store UUID"
 // @Param nama query string false "Filter by product name"
 // @Param name query string false "Alias filter by product name"
+// @Param search query string false "Search by product or store name"
+// @Param city query string false "Filter by store city"
+// @Param latitude query number false "User latitude for distance calculation"
+// @Param longitude query number false "User longitude for distance calculation"
 // @Success 200 {object} response.Response{payload=dto.GetProductsResponse} "List of products with pagination metadata"
 // @Failure 400 {object} response.ErrorResponse "Bad request or validation error"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"

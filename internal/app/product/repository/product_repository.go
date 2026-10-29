@@ -110,16 +110,41 @@ func (r *productRepository) GetProductByID(ctx context.Context, id uuid.UUID) (*
 	return &product, nil
 }
 
-func (r *productRepository) GetAllProducts(ctx context.Context, query dto.GetAllProductsQuery) ([]entity.Product, int64, error) {
+func (r *productRepository) GetAllProducts(ctx context.Context, query dto.GetAllProductsQuery) ([]entity.ProductCardItem, int64, error) {
 	builder := sq.
-		Select("p.id", "p.store_id", "p.name", "p.description", "p.main_image_url", "p.is_active", "p.created_at", "p.updated_at").
+		Select(
+			"p.id",
+			"p.store_id",
+			"s.name AS store_name",
+			"p.name",
+			"p.description",
+			"p.main_image_url",
+			"COALESCE(s.operational_start::text, '') AS operational_start",
+			"COALESCE(s.operational_end::text, '') AS operational_end",
+			"s.city AS store_city",
+			"s.district AS store_district",
+			"s.latitude AS store_latitude",
+			"s.longitude AS store_longitude",
+			"COALESCE(SUM(pv.current_stock), 0)::int AS total_current_stock",
+			"COALESCE(MIN(pv.normal_price), 0)::bigint AS min_normal_price",
+			"COALESCE(MIN(pv.rescue_price), 0)::bigint AS min_rescue_price",
+		).
 		From("products p").
-		Where(sq.Eq{"p.is_active": true})
+		Join("stores s ON s.id = p.store_id").
+		LeftJoin("product_variants pv ON pv.product_id = p.id AND pv.is_active = true").
+		Where(sq.Eq{
+			"p.is_active": true,
+			"s.status":    "ACTIVE",
+		})
 
 	countBuilder := sq.
 		Select("COUNT(DISTINCT p.id)").
 		From("products p").
-		Where(sq.Eq{"p.is_active": true})
+		Join("stores s ON s.id = p.store_id").
+		Where(sq.Eq{
+			"p.is_active": true,
+			"s.status":    "ACTIVE",
+		})
 
 	if query.StoreID != "" {
 		if storeUUID, err := uuid.Parse(query.StoreID); err == nil {
@@ -128,14 +153,27 @@ func (r *productRepository) GetAllProducts(ctx context.Context, query dto.GetAll
 		}
 	}
 
-	searchName := query.Nama
-	if searchName == "" {
-		searchName = query.Name
+	if query.City != "" {
+		cityPattern := fmt.Sprintf("%%%s%%", query.City)
+		builder = builder.Where(sq.ILike{"s.city": cityPattern})
+		countBuilder = countBuilder.Where(sq.ILike{"s.city": cityPattern})
 	}
-	if searchName != "" {
-		searchPattern := fmt.Sprintf("%%%s%%", searchName)
-		builder = builder.Where(sq.ILike{"p.name": searchPattern})
-		countBuilder = countBuilder.Where(sq.ILike{"p.name": searchPattern})
+
+	searchKeyword := query.Search
+	if searchKeyword == "" {
+		searchKeyword = query.Nama
+	}
+	if searchKeyword == "" {
+		searchKeyword = query.Name
+	}
+	if searchKeyword != "" {
+		searchPattern := fmt.Sprintf("%%%s%%", searchKeyword)
+		orClause := sq.Or{
+			sq.ILike{"p.name": searchPattern},
+			sq.ILike{"s.name": searchPattern},
+		}
+		builder = builder.Where(orClause)
+		countBuilder = countBuilder.Where(orClause)
 	}
 
 	// Count total
@@ -147,6 +185,9 @@ func (r *productRepository) GetAllProducts(ctx context.Context, query dto.GetAll
 	if err := r.dbGetter(ctx).GetContext(ctx, &total, countSql, countArgs...); err != nil {
 		return nil, 0, err
 	}
+
+	// Grouping
+	builder = builder.GroupBy("p.id", "s.id")
 
 	// Sorting
 	builder = builder.OrderBy("p.created_at DESC")
@@ -161,12 +202,12 @@ func (r *productRepository) GetAllProducts(ctx context.Context, query dto.GetAll
 		return nil, 0, err
 	}
 
-	var products []entity.Product
-	if err := r.dbGetter(ctx).SelectContext(ctx, &products, listSql, listArgs...); err != nil {
+	var items []entity.ProductCardItem
+	if err := r.dbGetter(ctx).SelectContext(ctx, &items, listSql, listArgs...); err != nil {
 		return nil, 0, err
 	}
 
-	return products, total, nil
+	return items, total, nil
 }
 
 func (r *productRepository) GetProductsByStoreID(ctx context.Context, storeID uuid.UUID, query dto.GetProductsQuery) ([]entity.Product, int64, error) {

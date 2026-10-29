@@ -114,38 +114,21 @@ func (s *productService) GetAllProducts(ctx context.Context, query dto.GetAllPro
 
 	pagination.Normalize(&query.Limit, &query.Page, &query.Offset, "product")
 
-	products, total, err := s.productRepo.GetAllProducts(ctx, query)
+	items, total, err := s.productRepo.GetAllProducts(ctx, query)
 	if err != nil {
 		return dto.GetProductsResponse{}, err
 	}
 
-	if len(products) == 0 {
+	if len(items) == 0 {
 		return dto.GetProductsResponse{
-			Products: []dto.ProductResponse{},
+			Products: []dto.ProductCardResponse{},
 			Meta:     pagination.NewPaginationResponse(total, query.Page, query.Limit),
 		}, nil
 	}
 
-	productIDs := make([]uuid.UUID, 0, len(products))
-	for _, p := range products {
-		productIDs = append(productIDs, p.ID)
-	}
-
-	variantMap, err := s.productRepo.GetVariantsByProductIDs(ctx, productIDs)
-	if err != nil {
-		return dto.GetProductsResponse{}, err
-	}
-
-	imageMap, err := s.productRepo.GetImagesByProductIDs(ctx, productIDs)
-	if err != nil {
-		return dto.GetProductsResponse{}, err
-	}
-
-	responses := make([]dto.ProductResponse, 0, len(products))
-	for _, p := range products {
-		p.Variants = variantMap[p.ID]
-		p.Images = imageMap[p.ID]
-		responses = append(responses, dto.FormatToProductResponse(p))
+	responses := make([]dto.ProductCardResponse, 0, len(items))
+	for _, item := range items {
+		responses = append(responses, dto.FormatToProductCardResponse(item, query.Latitude, query.Longitude))
 	}
 
 	return dto.GetProductsResponse{
