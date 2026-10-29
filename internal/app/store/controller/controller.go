@@ -21,7 +21,8 @@ func InitStoreController(
 	}
 
 	storeGroup := router.Group("/stores")
-	// Public store profile viewing
+	// Public store endpoints
+	storeGroup.Get("", ctr.GetAllStores)
 	storeGroup.Get("/:id", ctr.GetStoreByID)
 
 	// Protected merchant store endpoints

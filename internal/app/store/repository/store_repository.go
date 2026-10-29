@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 
+	"github.com/rescuebyte/rescuebyte-be/domain/dto"
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
 )
@@ -43,6 +45,58 @@ func (r *storeRepository) CreateStore(ctx context.Context, store entity.Store) e
 
 	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
 	return err
+}
+
+func (r *storeRepository) GetAllStores(ctx context.Context, query dto.GetAllStoresQuery) ([]entity.Store, int64, error) {
+	builder := sq.
+		Select(storeSelectFields...).
+		From("stores").
+		Where(sq.Eq{"status": "ACTIVE"})
+
+	countBuilder := sq.
+		Select("COUNT(id)").
+		From("stores").
+		Where(sq.Eq{"status": "ACTIVE"})
+
+	searchName := query.Name
+	if searchName == "" {
+		searchName = query.Nama
+	}
+	if searchName != "" {
+		searchPattern := fmt.Sprintf("%%%s%%", searchName)
+		builder = builder.Where(sq.ILike{"name": searchPattern})
+		countBuilder = countBuilder.Where(sq.ILike{"name": searchPattern})
+	}
+
+	// Count total
+	countSql, countArgs, err := countBuilder.PlaceholderFormat(sq.Dollar).ToSql()
+	if err != nil {
+		return nil, 0, err
+	}
+	var total int64
+	if err := r.dbGetter(ctx).GetContext(ctx, &total, countSql, countArgs...); err != nil {
+		return nil, 0, err
+	}
+
+	// Sorting
+	builder = builder.OrderBy("created_at DESC")
+
+	// Pagination
+	if query.Limit > 0 {
+		builder = builder.Limit(query.Limit).Offset(query.Offset)
+	}
+
+	listSql, listArgs, err := builder.PlaceholderFormat(sq.Dollar).ToSql()
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var stores []entity.Store
+	if err := r.dbGetter(ctx).SelectContext(ctx, &stores, listSql, listArgs...); err != nil {
+		return nil, 0, err
+	}
+
+	return stores, total, nil
 }
 
 func (r *storeRepository) GetStoreByID(ctx context.Context, id uuid.UUID) (*entity.Store, error) {

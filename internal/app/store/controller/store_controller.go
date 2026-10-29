@@ -68,6 +68,33 @@ func (c *storeController) GetMyStore(ctx fiber.Ctx) error {
 	return response.SendResponse(ctx, fiber.StatusOK, res)
 }
 
+// GetAllStores godoc
+// @Summary Get all stores
+// @Description Retrieve a list of active stores with optional filtering by name
+// @Tags Store
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(10)
+// @Param name query string false "Filter by store name"
+// @Param nama query string false "Alias filter by store name"
+// @Success 200 {object} response.Response{payload=dto.GetStoresResponse} "List of stores with pagination metadata"
+// @Failure 400 {object} response.ErrorResponse "Bad request or validation error"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /api/v1/stores [get]
+func (c *storeController) GetAllStores(ctx fiber.Ctx) error {
+	var query dto.GetAllStoresQuery
+	if err := ctx.Bind().Query(&query); err != nil {
+		return errx.ErrBadRequest.WithError(err)
+	}
+
+	res, err := c.storeService.GetAllStores(ctx.Context(), query)
+	if err != nil {
+		return err
+	}
+
+	return response.SendResponse(ctx, fiber.StatusOK, res)
+}
+
 // GetStoreByID godoc
 // @Summary Get store by ID
 // @Description Retrieve public store profile by its UUID

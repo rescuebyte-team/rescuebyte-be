@@ -11,6 +11,7 @@ import (
 
 type StoreRepository interface {
 	CreateStore(ctx context.Context, store entity.Store) error
+	GetAllStores(ctx context.Context, query dto.GetAllStoresQuery) ([]entity.Store, int64, error)
 	GetStoreByID(ctx context.Context, id uuid.UUID) (*entity.Store, error)
 	GetStoreByUserID(ctx context.Context, userID uuid.UUID) (*entity.Store, error)
 	UpdateStoreProfile(ctx context.Context, store entity.Store) error
@@ -20,6 +21,7 @@ type StoreRepository interface {
 
 type StoreService interface {
 	CreateStore(ctx context.Context, userID uuid.UUID, req dto.CreateStoreRequest) (*dto.StoreResponse, error)
+	GetAllStores(ctx context.Context, query dto.GetAllStoresQuery) (dto.GetStoresResponse, error)
 	GetMyStore(ctx context.Context, userID uuid.UUID) (*dto.StoreResponse, error)
 	GetStoreByID(ctx context.Context, id uuid.UUID) (*dto.StoreResponse, error)
 	UpdateStoreProfile(ctx context.Context, userID uuid.UUID, req dto.UpdateStoreProfileRequest) (*dto.StoreResponse, error)

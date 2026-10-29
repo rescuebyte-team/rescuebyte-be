@@ -11,6 +11,7 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/enums"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
+	"github.com/rescuebyte/rescuebyte-be/domain/helpers/pagination"
 )
 
 func parseAndNormalizeTime(tStr string) (string, error) {
@@ -131,6 +132,29 @@ func (s *storeService) GetMyStore(ctx context.Context, userID uuid.UUID) (*dto.S
 
 	res := dto.FormatToStoreResponse(*store)
 	return &res, nil
+}
+
+func (s *storeService) GetAllStores(ctx context.Context, query dto.GetAllStoresQuery) (dto.GetStoresResponse, error) {
+	if err := s.validator.Validate(query); err != nil {
+		return dto.GetStoresResponse{}, err
+	}
+
+	pagination.Normalize(&query.Limit, &query.Page, &query.Offset, "store")
+
+	stores, total, err := s.storeRepo.GetAllStores(ctx, query)
+	if err != nil {
+		return dto.GetStoresResponse{}, err
+	}
+
+	responses := make([]dto.StoreResponse, 0, len(stores))
+	for _, store := range stores {
+		responses = append(responses, dto.FormatToStoreResponse(store))
+	}
+
+	return dto.GetStoresResponse{
+		Stores: responses,
+		Meta:   pagination.NewPaginationResponse(total, query.Page, query.Limit),
+	}, nil
 }
 
 func (s *storeService) GetStoreByID(ctx context.Context, id uuid.UUID) (*dto.StoreResponse, error) {
