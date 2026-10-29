@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
+	"github.com/rescuebyte/rescuebyte-be/domain/helpers/pagination"
 )
 
 type CreateStoreRequest struct {
@@ -44,6 +45,14 @@ type UpdateStoreOperationalRequest struct {
 	OperationalDays  []int16 `json:"operational_days" validate:"required,min=1"`
 }
 
+type GetAllStoresQuery struct {
+	Limit  uint64 `query:"limit" validate:"omitempty,number"`
+	Page   uint64 `query:"page" validate:"omitempty,number,gte=1"`
+	Offset uint64
+	Name   string `query:"name" validate:"omitempty"`
+	Nama   string `query:"nama" validate:"omitempty"`
+}
+
 type StoreResponse struct {
 	ID                uuid.UUID `json:"id"`
 	UserID            uuid.UUID `json:"user_id"`
@@ -63,6 +72,11 @@ type StoreResponse struct {
 	Longitude         float64   `json:"longitude"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
+}
+
+type GetStoresResponse struct {
+	Stores []StoreResponse     `json:"stores"`
+	Meta   pagination.Response `json:"meta"`
 }
 
 func FormatToStoreResponse(store entity.Store) StoreResponse {

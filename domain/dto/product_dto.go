@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
+	"github.com/rescuebyte/rescuebyte-be/domain/helpers/pagination"
 )
 
 type CreateProductVariantRequest struct {
@@ -55,6 +56,15 @@ type GetProductsQuery struct {
 	Sort   string `query:"sort"` // "newest", "oldest"
 }
 
+type GetAllProductsQuery struct {
+	Limit   uint64 `query:"limit" validate:"omitempty,number"`
+	Page    uint64 `query:"page" validate:"omitempty,number,gte=1"`
+	Offset  uint64
+	StoreID string `query:"store_id" validate:"omitempty,uuid"`
+	Nama    string `query:"nama" validate:"omitempty"`
+	Name    string `query:"name" validate:"omitempty"`
+}
+
 type ProductVariantResponse struct {
 	ID           uuid.UUID `json:"id"`
 	ProductID    uuid.UUID `json:"product_id"`
@@ -90,6 +100,11 @@ type ProductResponse struct {
 	Images       []ProductImageResponse   `json:"images,omitempty"`
 	CreatedAt    time.Time                `json:"created_at"`
 	UpdatedAt    time.Time                `json:"updated_at"`
+}
+
+type GetProductsResponse struct {
+	Products []ProductResponse   `json:"products"`
+	Meta     pagination.Response `json:"meta"`
 }
 
 func FormatToProductVariantResponse(v entity.ProductVariant) ProductVariantResponse {
