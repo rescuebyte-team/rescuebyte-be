@@ -1,6 +1,9 @@
 package dto
 
 import (
+	"fmt"
+	"math"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -57,12 +60,33 @@ type GetProductsQuery struct {
 }
 
 type GetAllProductsQuery struct {
-	Limit   uint64 `query:"limit" validate:"omitempty,number"`
-	Page    uint64 `query:"page" validate:"omitempty,number,gte=1"`
-	Offset  uint64
-	StoreID string `query:"store_id" validate:"omitempty,uuid"`
-	Nama    string `query:"nama" validate:"omitempty"`
-	Name    string `query:"name" validate:"omitempty"`
+	Limit     uint64 `query:"limit" validate:"omitempty,number"`
+	Page      uint64 `query:"page" validate:"omitempty,number,gte=1"`
+	Offset    uint64
+	StoreID   string   `query:"store_id" validate:"omitempty,uuid"`
+	Nama      string   `query:"nama" validate:"omitempty"`
+	Name      string   `query:"name" validate:"omitempty"`
+	Search    string   `query:"search" validate:"omitempty"`
+	City      string   `query:"city" validate:"omitempty"`
+	Latitude  *float64 `query:"latitude" validate:"omitempty,latitude"`
+	Longitude *float64 `query:"longitude" validate:"omitempty,longitude"`
+}
+
+type ProductCardResponse struct {
+	ID                 uuid.UUID `json:"id"`
+	StoreID            uuid.UUID `json:"store_id"`
+	StoreName          string    `json:"store_name"`
+	Name               string    `json:"name"`
+	Description        *string   `json:"description"`
+	MainImageURL       *string   `json:"main_image_url"`
+	Stock              int       `json:"stock"`
+	NormalPrice        int64     `json:"normal_price"`
+	RescuePrice        int64     `json:"rescue_price"`
+	DiscountPercentage int       `json:"discount_percentage"`
+	OperationalStart   string    `json:"operational_start"`
+	OperationalEnd     string    `json:"operational_end"`
+	PickupTime         string    `json:"pickup_time"`
+	DistanceKm         *float64  `json:"distance_km,omitempty"`
 }
 
 type ProductVariantResponse struct {
@@ -103,8 +127,66 @@ type ProductResponse struct {
 }
 
 type GetProductsResponse struct {
-	Products []ProductResponse   `json:"products"`
-	Meta     pagination.Response `json:"meta"`
+	Products []ProductCardResponse `json:"products"`
+	Meta     pagination.Response   `json:"meta"`
+}
+
+func FormatTimeStr(t string) string {
+	t = strings.TrimSpace(t)
+	if len(t) >= 5 {
+		return t[:5]
+	}
+	return t
+}
+
+func CalculateDistanceKm(lat1, lon1, lat2, lon2 float64) float64 {
+	const earthRadius = 6371.0 // kilometers
+	dLat := (lat2 - lat1) * (math.Pi / 180.0)
+	dLon := (lon2 - lon1) * (math.Pi / 180.0)
+
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Cos(lat1*(math.Pi/180.0))*math.Cos(lat2*(math.Pi/180.0))*
+			math.Sin(dLon/2)*math.Sin(dLon/2)
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+
+	return math.Round(earthRadius*c*10) / 10
+}
+
+func FormatToProductCardResponse(item entity.ProductCardItem, userLat, userLon *float64) ProductCardResponse {
+	var discount int
+	if item.MinNormalPrice > 0 && item.MinRescuePrice < item.MinNormalPrice {
+		discount = int(math.Round(float64(item.MinNormalPrice-item.MinRescuePrice) / float64(item.MinNormalPrice) * 100))
+	}
+
+	opStart := FormatTimeStr(item.OperationalStart)
+	opEnd := FormatTimeStr(item.OperationalEnd)
+	pickupTime := ""
+	if opStart != "" && opEnd != "" {
+		pickupTime = fmt.Sprintf("Ambil: %s – %s WIB", opStart, opEnd)
+	}
+
+	var distanceKm *float64
+	if userLat != nil && userLon != nil {
+		dist := CalculateDistanceKm(*userLat, *userLon, item.StoreLatitude, item.StoreLongitude)
+		distanceKm = &dist
+	}
+
+	return ProductCardResponse{
+		ID:                 item.ID,
+		StoreID:            item.StoreID,
+		StoreName:          item.StoreName,
+		Name:               item.Name,
+		Description:        item.Description,
+		MainImageURL:       item.MainImageURL,
+		Stock:              item.TotalCurrentStock,
+		NormalPrice:        item.MinNormalPrice,
+		RescuePrice:        item.MinRescuePrice,
+		DiscountPercentage: discount,
+		OperationalStart:   opStart,
+		OperationalEnd:     opEnd,
+		PickupTime:         pickupTime,
+		DistanceKm:         distanceKm,
+	}
 }
 
 func FormatToProductVariantResponse(v entity.ProductVariant) ProductVariantResponse {
