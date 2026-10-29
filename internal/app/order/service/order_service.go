@@ -14,7 +14,6 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/domain/enums"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
 	"github.com/rescuebyte/rescuebyte-be/domain/helpers/pagination"
-	"github.com/rescuebyte/rescuebyte-be/pkg/midtrans"
 )
 
 func generateOrderNumber() string {
@@ -127,7 +126,7 @@ func (s *orderService) Checkout(ctx context.Context, userID uuid.UUID, req dto.C
 	}
 
 	orderItems := make([]entity.OrderItem, 0, len(preparedItems))
-	midtransItems := make([]midtrans.ItemDetail, 0, len(preparedItems)+1)
+	midtransItems := make([]dto.SnapItemDetail, 0, len(preparedItems)+1)
 
 	for _, p := range preparedItems {
 		itemID, err := s.uuid.NewV7()
@@ -151,7 +150,7 @@ func (s *orderService) Checkout(ctx context.Context, userID uuid.UUID, req dto.C
 			CreatedAt:        now,
 		})
 
-		midtransItems = append(midtransItems, midtrans.ItemDetail{
+		midtransItems = append(midtransItems, dto.SnapItemDetail{
 			ID:       p.variant.ID.String(),
 			Price:    p.variant.RescuePrice,
 			Quantity: p.qty,
@@ -161,7 +160,7 @@ func (s *orderService) Checkout(ctx context.Context, userID uuid.UUID, req dto.C
 
 	// Service fee for Midtrans
 	if serviceFee > 0 {
-		midtransItems = append(midtransItems, midtrans.ItemDetail{
+		midtransItems = append(midtransItems, dto.SnapItemDetail{
 			ID:       "fee-service",
 			Price:    serviceFee,
 			Quantity: 1,
@@ -179,12 +178,12 @@ func (s *orderService) Checkout(ctx context.Context, userID uuid.UUID, req dto.C
 	var payment entity.Payment
 
 	if req.PaymentMethod == string(enums.PaymentMethodOnline) {
-		snapReq := midtrans.SnapTransactionRequest{
-			TransactionDetails: midtrans.TransactionDetails{
+		snapReq := dto.SnapTransactionRequest{
+			TransactionDetails: dto.SnapTransactionDetails{
 				OrderID:     orderNumber,
 				GrossAmount: totalAmount,
 			},
-			CustomerDetails: midtrans.CustomerDetails{
+			CustomerDetails: dto.SnapCustomerDetails{
 				FirstName: req.CustomerName,
 				Email:     req.CustomerEmail,
 				Phone:     req.CustomerPhone,

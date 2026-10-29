@@ -10,11 +10,21 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/requestid"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
+
 	_ "github.com/rescuebyte/rescuebyte-be/docs"
 	authCtr "github.com/rescuebyte/rescuebyte-be/internal/app/auth/controller"
 	authSvc "github.com/rescuebyte/rescuebyte-be/internal/app/auth/service"
+	cartCtr "github.com/rescuebyte/rescuebyte-be/internal/app/cart/controller"
+	cartRepo "github.com/rescuebyte/rescuebyte-be/internal/app/cart/repository"
+	cartSvc "github.com/rescuebyte/rescuebyte-be/internal/app/cart/service"
 	enumCtr "github.com/rescuebyte/rescuebyte-be/internal/app/enum/controller"
 	enumSvc "github.com/rescuebyte/rescuebyte-be/internal/app/enum/service"
+	orderCtr "github.com/rescuebyte/rescuebyte-be/internal/app/order/controller"
+	orderRepo "github.com/rescuebyte/rescuebyte-be/internal/app/order/repository"
+	orderSvc "github.com/rescuebyte/rescuebyte-be/internal/app/order/service"
+	paymentCtr "github.com/rescuebyte/rescuebyte-be/internal/app/payment/controller"
+	paymentRepo "github.com/rescuebyte/rescuebyte-be/internal/app/payment/repository"
+	paymentSvc "github.com/rescuebyte/rescuebyte-be/internal/app/payment/service"
 	productCtr "github.com/rescuebyte/rescuebyte-be/internal/app/product/controller"
 	productRepo "github.com/rescuebyte/rescuebyte-be/internal/app/product/repository"
 	productSvc "github.com/rescuebyte/rescuebyte-be/internal/app/product/service"
@@ -27,11 +37,13 @@ import (
 	userRepo "github.com/rescuebyte/rescuebyte-be/internal/app/user/repository"
 	userSvc "github.com/rescuebyte/rescuebyte-be/internal/app/user/service"
 	"github.com/rescuebyte/rescuebyte-be/internal/infra/database"
+	"github.com/rescuebyte/rescuebyte-be/internal/infra/env"
 	"github.com/rescuebyte/rescuebyte-be/internal/middlewares"
 	errorhandler "github.com/rescuebyte/rescuebyte-be/pkg/helpers/http/error_handler"
 	"github.com/rescuebyte/rescuebyte-be/pkg/helpers/http/response"
 	"github.com/rescuebyte/rescuebyte-be/pkg/jwt"
 	"github.com/rescuebyte/rescuebyte-be/pkg/log"
+	"github.com/rescuebyte/rescuebyte-be/pkg/midtrans"
 	"github.com/rescuebyte/rescuebyte-be/pkg/oauth"
 	"github.com/rescuebyte/rescuebyte-be/pkg/supabase"
 	"github.com/rescuebyte/rescuebyte-be/pkg/uuid"
@@ -111,6 +123,16 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 	userRepository := userRepo.NewUserRepository(dbGetter)
 	storeRepository := storeRepo.NewStoreRepository(dbGetter)
 	productRepository := productRepo.NewProductRepository(dbGetter)
+	cartRepository := cartRepo.NewCartRepository(dbGetter)
+	orderRepository := orderRepo.NewOrderRepository(dbGetter)
+	paymentRepository := paymentRepo.NewPaymentRepository(dbGetter)
+
+	// Midtrans Client
+	midtransService := midtrans.NewMidtransService(midtrans.Config{
+		ServerKey:    env.AppEnv.MidtransServerKey,
+		ClientKey:    env.AppEnv.MidtransClientKey,
+		IsProduction: env.AppEnv.MidtransIsProduction,
+	})
 
 	// Services
 	enumService := enumSvc.NewEnumService()
@@ -141,6 +163,31 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 		supabaseStorage,
 		uuidService,
 	)
+	cartService := cartSvc.NewCartService(
+		transactor,
+		cartRepository,
+		productRepository,
+		validatorService,
+		uuidService,
+	)
+	orderService := orderSvc.NewOrderService(
+		transactor,
+		orderRepository,
+		cartRepository,
+		productRepository,
+		storeRepository,
+		paymentRepository,
+		midtransService,
+		validatorService,
+		uuidService,
+	)
+	paymentService := paymentSvc.NewPaymentService(
+		transactor,
+		paymentRepository,
+		orderRepository,
+		productRepository,
+		midtransService,
+	)
 
 	// Middlewares
 	middleware := middlewares.NewMiddleware(jwtService)
@@ -169,6 +216,9 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 	storeCtr.InitStoreController(v1, storeService, middleware)
 	productCtr.InitProductController(v1, productService, middleware)
 	storageCtr.InitStorageController(v1, storageService, middleware)
+	cartCtr.InitCartController(v1, cartService, middleware)
+	orderCtr.InitOrderController(v1, orderService, middleware)
+	paymentCtr.InitPaymentController(v1, paymentService, middleware)
 }
 
 // healthCheck godoc

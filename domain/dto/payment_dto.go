@@ -32,6 +32,36 @@ type MidtransNotificationPayload struct {
 	SignatureKey      string `json:"signature_key"`
 }
 
+type SnapTransactionDetails struct {
+	OrderID     string `json:"order_id"`
+	GrossAmount int64  `json:"gross_amount"`
+}
+
+type SnapCustomerDetails struct {
+	FirstName string `json:"first_name"`
+	Email     string `json:"email"`
+	Phone     string `json:"phone"`
+}
+
+type SnapItemDetail struct {
+	ID       string `json:"id"`
+	Price    int64  `json:"price"`
+	Quantity int    `json:"quantity"`
+	Name     string `json:"name"`
+}
+
+type SnapTransactionRequest struct {
+	TransactionDetails SnapTransactionDetails `json:"transaction_details"`
+	CustomerDetails    SnapCustomerDetails    `json:"customer_details"`
+	ItemDetails        []SnapItemDetail       `json:"item_details"`
+}
+
+type SnapTransactionResponse struct {
+	Token         string   `json:"token"`
+	RedirectURL   string   `json:"redirect_url"`
+	ErrorMessages []string `json:"error_messages,omitempty"`
+}
+
 func FormatToPaymentResponse(p entity.Payment) PaymentResponse {
 	var paidAtStr *string
 	if p.PaidAt != nil {
