@@ -112,6 +112,24 @@ definitions:
     - operational_start
     - whatsapp_number
     type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.GetProductsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_helpers_pagination.Response'
+      products:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductResponse'
+        type: array
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.GetStoresResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_helpers_pagination.Response'
+      stores:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.StoreResponse'
+        type: array
+    type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.GoogleAuthURLResponse:
     properties:
       auth_url:
@@ -444,6 +462,17 @@ definitions:
     - RoleUserIdx
     - RoleAdminIdx
     - RoleSellerIdx
+  github_com_rescuebyte_rescuebyte-be_domain_helpers_pagination.Response:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total_data:
+        type: integer
+      total_page:
+        type: integer
+    type: object
   github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorDetail:
     properties:
       details: {}
@@ -771,6 +800,55 @@ paths:
       tags:
       - Enums
   /api/v1/products:
+    get:
+      description: Retrieve a list of active products with optional filtering by store_id
+        and product name
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by store UUID
+        in: query
+        name: store_id
+        type: string
+      - description: Filter by product name
+        in: query
+        name: nama
+        type: string
+      - description: Alias filter by product name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of products with pagination metadata
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetProductsResponse'
+              type: object
+        "400":
+          description: Bad request or validation error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      summary: Get all products
+      tags:
+      - Product
     post:
       consumes:
       - application/json
@@ -1159,6 +1237,50 @@ paths:
       tags:
       - Storage
   /api/v1/stores:
+    get:
+      description: Retrieve a list of active stores with optional filtering by name
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by store name
+        in: query
+        name: name
+        type: string
+      - description: Alias filter by store name
+        in: query
+        name: nama
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of stores with pagination metadata
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetStoresResponse'
+              type: object
+        "400":
+          description: Bad request or validation error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      summary: Get all stores
+      tags:
+      - Store
     post:
       consumes:
       - application/json
