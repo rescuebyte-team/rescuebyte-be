@@ -50,10 +50,23 @@ type SnapItemDetail struct {
 	Name     string `json:"name"`
 }
 
+type SnapExpiry struct {
+	StartTime string `json:"start_time,omitempty"`
+	Unit      string `json:"unit"`
+	Duration  int    `json:"duration"`
+}
+
+type SnapPageExpiry struct {
+	Duration int    `json:"duration"`
+	Unit     string `json:"unit,omitempty"`
+}
+
 type SnapTransactionRequest struct {
 	TransactionDetails SnapTransactionDetails `json:"transaction_details"`
 	CustomerDetails    SnapCustomerDetails    `json:"customer_details"`
 	ItemDetails        []SnapItemDetail       `json:"item_details"`
+	Expiry             *SnapExpiry            `json:"expiry,omitempty"`
+	PageExpiry         *SnapPageExpiry        `json:"page_expiry,omitempty"`
 }
 
 type SnapTransactionResponse struct {

@@ -189,6 +189,15 @@ func (s *orderService) Checkout(ctx context.Context, userID uuid.UUID, req dto.C
 				Phone:     req.CustomerPhone,
 			},
 			ItemDetails: midtransItems,
+			Expiry: &dto.SnapExpiry{
+				StartTime: now.Format("2006-01-02 15:04:05 -0700"),
+				Unit:      "minute",
+				Duration:  15,
+			},
+			PageExpiry: &dto.SnapPageExpiry{
+				Duration: 15,
+				Unit:     "minute",
+			},
 		}
 
 		snapResp, err := s.midtransSvc.CreateSnapTransaction(ctx, snapReq)
