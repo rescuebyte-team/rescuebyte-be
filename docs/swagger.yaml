@@ -1,5 +1,16 @@
 basePath: /
 definitions:
+  github_com_rescuebyte_rescuebyte-be_domain_dto.AddToCartRequest:
+    properties:
+      product_variant_id:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - product_variant_id
+    - quantity
+    type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.AuthResponse:
     properties:
       access_token:
@@ -8,6 +19,131 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UserResponse'
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CancelOrderRequest:
+    properties:
+      reason:
+        maxLength: 255
+        type: string
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CartCountResponse:
+    properties:
+      count:
+        type: integer
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CartItemResponse:
+    properties:
+      current_stock:
+        type: integer
+      discount_percentage:
+        type: integer
+      id:
+        type: string
+      is_available:
+        type: boolean
+      normal_price:
+        type: integer
+      product_id:
+        type: string
+      product_image_url:
+        type: string
+      product_name:
+        type: string
+      product_variant_id:
+        type: string
+      quantity:
+        type: integer
+      rescue_price:
+        type: integer
+      subtotal:
+        type: integer
+      variant_name:
+        type: string
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CartResponse:
+    properties:
+      service_fee:
+        type: integer
+      stores:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.StoreCartGroup'
+        type: array
+      subtotal:
+        type: integer
+      total_boxes:
+        type: integer
+      total_discount:
+        type: integer
+      total_items:
+        type: integer
+      total_original_price:
+        type: integer
+      total_payment:
+        type: integer
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CheckoutItemRequest:
+    properties:
+      product_variant_id:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - product_variant_id
+    - quantity
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CheckoutRequest:
+    properties:
+      customer_email:
+        type: string
+      customer_name:
+        maxLength: 255
+        minLength: 2
+        type: string
+      customer_phone:
+        maxLength: 20
+        minLength: 8
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CheckoutItemRequest'
+        minItems: 1
+        type: array
+      notes:
+        type: string
+      payment_method:
+        enum:
+        - ONLINE
+        - CASH_ON_PICKUP
+        type: string
+      pickup_date:
+        description: YYYY-MM-DD
+        type: string
+      pickup_time_end:
+        type: string
+      pickup_time_start:
+        type: string
+      store_id:
+        type: string
+    required:
+    - customer_email
+    - customer_name
+    - customer_phone
+    - items
+    - payment_method
+    - pickup_date
+    - pickup_time_end
+    - pickup_time_start
+    - store_id
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CheckoutResponse:
+    properties:
+      order:
+        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.OrderDetailResponse'
+      snap_redirect_url:
+        type: string
+      snap_token:
+        type: string
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.CreateProductRequest:
     properties:
@@ -112,13 +248,22 @@ definitions:
     - operational_start
     - whatsapp_number
     type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.GetOrdersResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_helpers_pagination.Response'
+      orders:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.OrderListItemResponse'
+        type: array
+    type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.GetProductsResponse:
     properties:
       meta:
         $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_helpers_pagination.Response'
       products:
         items:
-          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductResponse'
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductCardResponse'
         type: array
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.GetStoresResponse:
@@ -146,6 +291,205 @@ definitions:
     required:
     - email
     - password
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.MidtransNotificationPayload:
+    properties:
+      fraud_status:
+        type: string
+      gross_amount:
+        type: string
+      order_id:
+        type: string
+      payment_type:
+        type: string
+      signature_key:
+        type: string
+      status_code:
+        type: string
+      transaction_id:
+        type: string
+      transaction_status:
+        type: string
+      transaction_time:
+        type: string
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.OrderDetailResponse:
+    properties:
+      created_at:
+        type: string
+      customer_email:
+        type: string
+      customer_name:
+        type: string
+      customer_phone:
+        type: string
+      id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.OrderItemResponse'
+        type: array
+      notes:
+        type: string
+      order_number:
+        type: string
+      packaging_fee:
+        type: integer
+      payment:
+        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.PaymentResponse'
+      payment_method:
+        type: string
+      pickup_date:
+        type: string
+      pickup_time:
+        type: string
+      service_fee:
+        type: integer
+      status:
+        type: string
+      status_label:
+        type: string
+      steps:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.OrderStepTrackingResponse'
+        type: array
+      store_address:
+        type: string
+      store_city:
+        type: string
+      store_district:
+        type: string
+      store_id:
+        type: string
+      store_name:
+        type: string
+      subtotal:
+        type: integer
+      total_amount:
+        type: integer
+      total_discount:
+        type: integer
+      total_original_price:
+        type: integer
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.OrderItemResponse:
+    properties:
+      id:
+        type: string
+      normal_price:
+        type: integer
+      product_id:
+        type: string
+      product_image_url:
+        type: string
+      product_name:
+        type: string
+      product_variant_id:
+        type: string
+      quantity:
+        type: integer
+      rescue_price:
+        type: integer
+      subtotal:
+        type: integer
+      variant_name:
+        type: string
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.OrderListItemResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      order_number:
+        type: string
+      payment_method:
+        type: string
+      pickup_schedule:
+        type: string
+      status:
+        type: string
+      status_label:
+        type: string
+      store_address:
+        type: string
+      store_id:
+        type: string
+      store_name:
+        type: string
+      summary_image_url:
+        type: string
+      summary_item_name:
+        type: string
+      total_amount:
+        type: integer
+      total_items:
+        type: integer
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.OrderStepTrackingResponse:
+    properties:
+      completed_at:
+        type: string
+      is_completed:
+        type: boolean
+      step_description:
+        type: string
+      step_name:
+        type: string
+      step_number:
+        type: integer
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.PaymentResponse:
+    properties:
+      amount:
+        type: integer
+      id:
+        type: string
+      order_id:
+        type: string
+      paid_at:
+        type: string
+      payment_channel:
+        type: string
+      payment_type:
+        type: string
+      snap_redirect_url:
+        type: string
+      snap_token:
+        type: string
+      status:
+        type: string
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.ProductCardResponse:
+    properties:
+      description:
+        type: string
+      discount_percentage:
+        type: integer
+      distance_km:
+        type: number
+      id:
+        type: string
+      main_image_url:
+        type: string
+      name:
+        type: string
+      normal_price:
+        type: integer
+      operational_end:
+        type: string
+      operational_start:
+        type: string
+      pickup_time:
+        type: string
+      rescue_price:
+        type: integer
+      stock:
+        type: integer
+      store_id:
+        type: string
+      store_name:
+        type: string
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.ProductImageResponse:
     properties:
@@ -240,6 +584,33 @@ definitions:
     - name
     - password
     type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.StoreCartGroup:
+    properties:
+      distance_km:
+        type: number
+      items:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CartItemResponse'
+        type: array
+      operational_end:
+        type: string
+      operational_start:
+        type: string
+      pickup_time:
+        type: string
+      store_address:
+        type: string
+      store_city:
+        type: string
+      store_district:
+        type: string
+      store_id:
+        type: string
+      store_name:
+        type: string
+      store_subtotal:
+        type: integer
+    type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.StoreResponse:
     properties:
       address:
@@ -285,6 +656,28 @@ definitions:
     properties:
       is_active:
         type: boolean
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateCartItemRequest:
+    properties:
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - quantity
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateOrderStatusRequest:
+    properties:
+      cancellation_reason:
+        type: string
+      status:
+        enum:
+        - IN_PROCESS
+        - READY_FOR_PICKUP
+        - COMPLETED
+        - CANCELLED
+        type: string
+    required:
+    - status
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateProductRequest:
     properties:
@@ -768,6 +1161,282 @@ paths:
       summary: Register new user account
       tags:
       - Auth
+  /api/v1/cart:
+    delete:
+      description: Remove all items from the customer's cart
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Cart cleared successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Clear cart
+      tags:
+      - Cart
+    get:
+      description: Retrieve cart items grouped by store with financial calculations
+      parameters:
+      - description: User latitude
+        in: query
+        name: latitude
+        type: number
+      - description: User longitude
+        in: query
+        name: longitude
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Cart details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CartResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get customer cart
+      tags:
+      - Cart
+  /api/v1/cart/count:
+    get:
+      description: Get total count of items/boxes in cart for the floating cart badge
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Cart count
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CartCountResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get cart items count
+      tags:
+      - Cart
+  /api/v1/cart/items:
+    post:
+      consumes:
+      - application/json
+      description: Add a product variant to the customer's cart
+      parameters:
+      - description: Add to Cart Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.AddToCartRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Item added successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "400":
+          description: Bad request or insufficient stock
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Variant not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add item to cart
+      tags:
+      - Cart
+  /api/v1/cart/items/{id}:
+    delete:
+      description: Delete a specific item from the cart
+      parameters:
+      - description: Cart Item UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Item removed successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Cart item not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove item from cart
+      tags:
+      - Cart
+    patch:
+      consumes:
+      - application/json
+      description: Change the quantity of an item in the cart
+      parameters:
+      - description: Cart Item UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Quantity Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateCartItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Item updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "400":
+          description: Bad request or insufficient stock
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Cart item not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update cart item quantity
+      tags:
+      - Cart
+  /api/v1/cart/stores/{store_id}:
+    delete:
+      description: Delete all cart items belonging to a specific store
+      parameters:
+      - description: Store UUID
+        in: path
+        name: store_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Store items removed successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove all items from a store
+      tags:
+      - Cart
   /api/v1/enums:
     get:
       consumes:
@@ -799,10 +1468,355 @@ paths:
       summary: Get system enums
       tags:
       - Enums
+  /api/v1/orders:
+    get:
+      description: Retrieve a list of orders for the customer with tab status filtering
+        and search
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: 'Status tab filter: all, waiting_payment, waiting_confirmation,
+          ready_for_pickup, completed, cancelled'
+        in: query
+        name: tab
+        type: string
+      - description: Search by order number, store name, or product name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of orders with pagination metadata
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetOrdersResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List customer orders
+      tags:
+      - Order
+  /api/v1/orders/{id}:
+    get:
+      description: Retrieve complete order details including items, payment info,
+        and 5-step status tracking
+      parameters:
+      - description: Order UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.OrderDetailResponse'
+              type: object
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Order not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get order detail
+      tags:
+      - Order
+  /api/v1/orders/{id}/cancel:
+    post:
+      consumes:
+      - application/json
+      description: Cancel an order before it is processed and automatically restore
+        variant stocks
+      parameters:
+      - description: Order UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Cancel Order Payload
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CancelOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order cancelled successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "400":
+          description: Order cannot be cancelled in its current state
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Order not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Cancel order
+      tags:
+      - Order
+  /api/v1/orders/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Transition order status (IN_PROCESS, READY_FOR_PICKUP, COMPLETED,
+        CANCELLED)
+      parameters:
+      - description: Order UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Status Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateOrderStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated order detail
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.OrderDetailResponse'
+              type: object
+        "400":
+          description: Bad request or invalid status
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "403":
+          description: Forbidden - Store access unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Order not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update order status by merchant
+      tags:
+      - Order
+  /api/v1/orders/checkout:
+    post:
+      consumes:
+      - application/json
+      description: Create an order for a store with online payment (Midtrans Snap)
+        or cash on pickup
+      parameters:
+      - description: Checkout Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CheckoutRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Order created with optional snap token
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CheckoutResponse'
+              type: object
+        "400":
+          description: Bad request or insufficient stock
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Store or variant not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Checkout order
+      tags:
+      - Order
+  /api/v1/payments/midtrans/webhook:
+    post:
+      consumes:
+      - application/json
+      description: Handle Midtrans payment notification with SHA-512 signature validation
+        and automatic status transition
+      parameters:
+      - description: Midtrans Notification Payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.MidtransNotificationPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment notification processed successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Invalid signature
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Order not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      summary: Midtrans payment webhook
+      tags:
+      - Payment
+  /api/v1/payments/order/{order_id}:
+    get:
+      description: Check payment status for a specific order
+      parameters:
+      - description: Order UUID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment status details
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.PaymentResponse'
+              type: object
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Payment not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Check payment status
+      tags:
+      - Payment
   /api/v1/products:
     get:
-      description: Retrieve a list of active products with optional filtering by store_id
-        and product name
+      description: Retrieve a list of active products for marketplace card display
+        with optional filtering
       parameters:
       - default: 1
         description: Page number
@@ -826,6 +1840,22 @@ paths:
         in: query
         name: name
         type: string
+      - description: Search by product or store name
+        in: query
+        name: search
+        type: string
+      - description: Filter by store city
+        in: query
+        name: city
+        type: string
+      - description: User latitude for distance calculation
+        in: query
+        name: latitude
+        type: number
+      - description: User longitude for distance calculation
+        in: query
+        name: longitude
+        type: number
       produces:
       - application/json
       responses:

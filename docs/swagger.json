@@ -422,6 +422,469 @@
                 }
             }
         },
+        "/api/v1/cart": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve cart items grouped by store with financial calculations",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get customer cart",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "User latitude",
+                        "name": "latitude",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "User longitude",
+                        "name": "longitude",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cart details",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CartResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Remove all items from the customer's cart",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Clear cart",
+                "responses": {
+                    "200": {
+                        "description": "Cart cleared successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cart/count": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get total count of items/boxes in cart for the floating cart badge",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get cart items count",
+                "responses": {
+                    "200": {
+                        "description": "Cart count",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CartCountResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cart/items": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Add a product variant to the customer's cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Add item to cart",
+                "parameters": [
+                    {
+                        "description": "Add to Cart Payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.AddToCartRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Item added successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request or insufficient stock",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Variant not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cart/items/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a specific item from the cart",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Remove item from cart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cart Item UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item removed successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid UUID format",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Cart item not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Change the quantity of an item in the cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Update cart item quantity",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cart Item UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Quantity Payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateCartItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item updated successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request or insufficient stock",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Cart item not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cart/stores/{store_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete all cart items belonging to a specific store",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Remove all items from a store",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Store UUID",
+                        "name": "store_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Store items removed successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid UUID format",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/enums": {
             "get": {
                 "description": "Retrieve system enums and lookup values (optional filter by comma-separated types)",
@@ -472,9 +935,564 @@
                 }
             }
         },
+        "/api/v1/orders": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of orders for the customer with tab status filtering and search",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "List customer orders",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status tab filter: all, waiting_payment, waiting_confirmation, ready_for_pickup, completed, cancelled",
+                        "name": "tab",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by order number, store name, or product name",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of orders with pagination metadata",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetOrdersResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/orders/checkout": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create an order for a store with online payment (Midtrans Snap) or cash on pickup",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Checkout order",
+                "parameters": [
+                    {
+                        "description": "Checkout Payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CheckoutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Order created with optional snap token",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CheckoutResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request or insufficient stock",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Store or variant not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/orders/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve complete order details including items, payment info, and 5-step status tracking",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get order detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.OrderDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid UUID format",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Order not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/orders/{id}/cancel": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Cancel an order before it is processed and automatically restore variant stocks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Cancel order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Cancel Order Payload",
+                        "name": "request",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CancelOrderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order cancelled successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Order cannot be cancelled in its current state",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Order not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/orders/{id}/status": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Transition order status (IN_PROCESS, READY_FOR_PICKUP, COMPLETED, CANCELLED)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Update order status by merchant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Status Payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateOrderStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated order detail",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.OrderDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request or invalid status",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Store access unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Order not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/payments/midtrans/webhook": {
+            "post": {
+                "description": "Handle Midtrans payment notification with SHA-512 signature validation and automatic status transition",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Midtrans payment webhook",
+                "parameters": [
+                    {
+                        "description": "Midtrans Notification Payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.MidtransNotificationPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment notification processed successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid signature",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Order not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/payments/order/{order_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Check payment status for a specific order",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Check payment status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order UUID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment status details",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.PaymentResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid UUID format",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Payment not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/products": {
             "get": {
-                "description": "Retrieve a list of active products with optional filtering by store_id and product name",
+                "description": "Retrieve a list of active products for marketplace card display with optional filtering",
                 "produces": [
                     "application/json"
                 ],
@@ -513,6 +1531,30 @@
                         "type": "string",
                         "description": "Alias filter by product name",
                         "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by product or store name",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by store city",
+                        "name": "city",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "User latitude for distance calculation",
+                        "name": "latitude",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "User longitude for distance calculation",
+                        "name": "longitude",
                         "in": "query"
                     }
                 ],
@@ -1880,6 +2922,22 @@
         }
     },
     "definitions": {
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.AddToCartRequest": {
+            "type": "object",
+            "required": [
+                "product_variant_id",
+                "quantity"
+            ],
+            "properties": {
+                "product_variant_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
         "github_com_rescuebyte_rescuebyte-be_domain_dto.AuthResponse": {
             "type": "object",
             "properties": {
@@ -1891,6 +2949,188 @@
                 },
                 "user": {
                     "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UserResponse"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.CancelOrderRequest": {
+            "type": "object",
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "maxLength": 255
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.CartCountResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.CartItemResponse": {
+            "type": "object",
+            "properties": {
+                "current_stock": {
+                    "type": "integer"
+                },
+                "discount_percentage": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_available": {
+                    "type": "boolean"
+                },
+                "normal_price": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "product_image_url": {
+                    "type": "string"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "product_variant_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "rescue_price": {
+                    "type": "integer"
+                },
+                "subtotal": {
+                    "type": "integer"
+                },
+                "variant_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.CartResponse": {
+            "type": "object",
+            "properties": {
+                "service_fee": {
+                    "type": "integer"
+                },
+                "stores": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.StoreCartGroup"
+                    }
+                },
+                "subtotal": {
+                    "type": "integer"
+                },
+                "total_boxes": {
+                    "type": "integer"
+                },
+                "total_discount": {
+                    "type": "integer"
+                },
+                "total_items": {
+                    "type": "integer"
+                },
+                "total_original_price": {
+                    "type": "integer"
+                },
+                "total_payment": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.CheckoutItemRequest": {
+            "type": "object",
+            "required": [
+                "product_variant_id",
+                "quantity"
+            ],
+            "properties": {
+                "product_variant_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.CheckoutRequest": {
+            "type": "object",
+            "required": [
+                "customer_email",
+                "customer_name",
+                "customer_phone",
+                "items",
+                "payment_method",
+                "pickup_date",
+                "pickup_time_end",
+                "pickup_time_start",
+                "store_id"
+            ],
+            "properties": {
+                "customer_email": {
+                    "type": "string"
+                },
+                "customer_name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 2
+                },
+                "customer_phone": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8
+                },
+                "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CheckoutItemRequest"
+                    }
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "type": "string",
+                    "enum": [
+                        "ONLINE",
+                        "CASH_ON_PICKUP"
+                    ]
+                },
+                "pickup_date": {
+                    "description": "YYYY-MM-DD",
+                    "type": "string"
+                },
+                "pickup_time_end": {
+                    "type": "string"
+                },
+                "pickup_time_start": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.CheckoutResponse": {
+            "type": "object",
+            "properties": {
+                "order": {
+                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.OrderDetailResponse"
+                },
+                "snap_redirect_url": {
+                    "type": "string"
+                },
+                "snap_token": {
+                    "type": "string"
                 }
             }
         },
@@ -2033,6 +3273,20 @@
                 }
             }
         },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.GetOrdersResponse": {
+            "type": "object",
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_helpers_pagination.Response"
+                },
+                "orders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.OrderListItemResponse"
+                    }
+                }
+            }
+        },
         "github_com_rescuebyte_rescuebyte-be_domain_dto.GetProductsResponse": {
             "type": "object",
             "properties": {
@@ -2042,7 +3296,7 @@
                 "products": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductResponse"
+                        "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductCardResponse"
                     }
                 }
             }
@@ -2083,6 +3337,308 @@
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.MidtransNotificationPayload": {
+            "type": "object",
+            "properties": {
+                "fraud_status": {
+                    "type": "string"
+                },
+                "gross_amount": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "payment_type": {
+                    "type": "string"
+                },
+                "signature_key": {
+                    "type": "string"
+                },
+                "status_code": {
+                    "type": "string"
+                },
+                "transaction_id": {
+                    "type": "string"
+                },
+                "transaction_status": {
+                    "type": "string"
+                },
+                "transaction_time": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.OrderDetailResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "customer_email": {
+                    "type": "string"
+                },
+                "customer_name": {
+                    "type": "string"
+                },
+                "customer_phone": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.OrderItemResponse"
+                    }
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "order_number": {
+                    "type": "string"
+                },
+                "packaging_fee": {
+                    "type": "integer"
+                },
+                "payment": {
+                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.PaymentResponse"
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "pickup_date": {
+                    "type": "string"
+                },
+                "pickup_time": {
+                    "type": "string"
+                },
+                "service_fee": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "status_label": {
+                    "type": "string"
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.OrderStepTrackingResponse"
+                    }
+                },
+                "store_address": {
+                    "type": "string"
+                },
+                "store_city": {
+                    "type": "string"
+                },
+                "store_district": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "string"
+                },
+                "store_name": {
+                    "type": "string"
+                },
+                "subtotal": {
+                    "type": "integer"
+                },
+                "total_amount": {
+                    "type": "integer"
+                },
+                "total_discount": {
+                    "type": "integer"
+                },
+                "total_original_price": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.OrderItemResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "normal_price": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "product_image_url": {
+                    "type": "string"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "product_variant_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "rescue_price": {
+                    "type": "integer"
+                },
+                "subtotal": {
+                    "type": "integer"
+                },
+                "variant_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.OrderListItemResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "order_number": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "pickup_schedule": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "status_label": {
+                    "type": "string"
+                },
+                "store_address": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "string"
+                },
+                "store_name": {
+                    "type": "string"
+                },
+                "summary_image_url": {
+                    "type": "string"
+                },
+                "summary_item_name": {
+                    "type": "string"
+                },
+                "total_amount": {
+                    "type": "integer"
+                },
+                "total_items": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.OrderStepTrackingResponse": {
+            "type": "object",
+            "properties": {
+                "completed_at": {
+                    "type": "string"
+                },
+                "is_completed": {
+                    "type": "boolean"
+                },
+                "step_description": {
+                    "type": "string"
+                },
+                "step_name": {
+                    "type": "string"
+                },
+                "step_number": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.PaymentResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "paid_at": {
+                    "type": "string"
+                },
+                "payment_channel": {
+                    "type": "string"
+                },
+                "payment_type": {
+                    "type": "string"
+                },
+                "snap_redirect_url": {
+                    "type": "string"
+                },
+                "snap_token": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.ProductCardResponse": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount_percentage": {
+                    "type": "integer"
+                },
+                "distance_km": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "main_image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "normal_price": {
+                    "type": "integer"
+                },
+                "operational_end": {
+                    "type": "string"
+                },
+                "operational_start": {
+                    "type": "string"
+                },
+                "pickup_time": {
+                    "type": "string"
+                },
+                "rescue_price": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "store_id": {
+                    "type": "string"
+                },
+                "store_name": {
                     "type": "string"
                 }
             }
@@ -2226,6 +3782,47 @@
                 }
             }
         },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.StoreCartGroup": {
+            "type": "object",
+            "properties": {
+                "distance_km": {
+                    "type": "number"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CartItemResponse"
+                    }
+                },
+                "operational_end": {
+                    "type": "string"
+                },
+                "operational_start": {
+                    "type": "string"
+                },
+                "pickup_time": {
+                    "type": "string"
+                },
+                "store_address": {
+                    "type": "string"
+                },
+                "store_city": {
+                    "type": "string"
+                },
+                "store_district": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "string"
+                },
+                "store_name": {
+                    "type": "string"
+                },
+                "store_subtotal": {
+                    "type": "integer"
+                }
+            }
+        },
         "github_com_rescuebyte_rescuebyte-be_domain_dto.StoreResponse": {
             "type": "object",
             "properties": {
@@ -2293,6 +3890,38 @@
             "properties": {
                 "is_active": {
                     "type": "boolean"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateCartItemRequest": {
+            "type": "object",
+            "required": [
+                "quantity"
+            ],
+            "properties": {
+                "quantity": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateOrderStatusRequest": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "cancellation_reason": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "IN_PROCESS",
+                        "READY_FOR_PICKUP",
+                        "COMPLETED",
+                        "CANCELLED"
+                    ]
                 }
             }
         },
