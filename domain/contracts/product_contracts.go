@@ -17,6 +17,9 @@ type ProductRepository interface {
 	GetAllProducts(ctx context.Context, query dto.GetAllProductsQuery) ([]entity.ProductCardItem, int64, error)
 	GetProductsByStoreID(ctx context.Context, storeID uuid.UUID, query dto.GetProductsQuery) ([]entity.Product, int64, error)
 	GetVariantsByProductIDs(ctx context.Context, productIDs []uuid.UUID) (map[uuid.UUID][]entity.ProductVariant, error)
+	GetVariantByID(ctx context.Context, id uuid.UUID) (*entity.ProductVariant, error)
+	DeductVariantStock(ctx context.Context, id uuid.UUID, quantity int) error
+	RestoreVariantStock(ctx context.Context, id uuid.UUID, quantity int) error
 	GetImagesByProductIDs(ctx context.Context, productIDs []uuid.UUID) (map[uuid.UUID][]entity.ProductImage, error)
 	UpdateProduct(ctx context.Context, product entity.Product) error
 	UpdateProductStatus(ctx context.Context, productID uuid.UUID, isActive bool) error

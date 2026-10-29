@@ -315,6 +315,61 @@ func (r *productRepository) GetVariantsByProductIDs(ctx context.Context, product
 	return result, nil
 }
 
+func (r *productRepository) GetVariantByID(ctx context.Context, id uuid.UUID) (*entity.ProductVariant, error) {
+	query, args, err := sq.
+		Select(variantSelectFields...).
+		From("product_variants").
+		Where(sq.Eq{"id": id}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var variant entity.ProductVariant
+	err = r.dbGetter(ctx).GetContext(ctx, &variant, query, args...)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errx.ErrVariantNotFound
+		}
+		return nil, err
+	}
+
+	return &variant, nil
+}
+
+func (r *productRepository) DeductVariantStock(ctx context.Context, id uuid.UUID, quantity int) error {
+	rawQuery := `
+		UPDATE product_variants
+		SET current_stock = current_stock - $1,
+		    updated_at = NOW()
+		WHERE id = $2 AND current_stock >= $1
+	`
+	res, err := r.dbGetter(ctx).ExecContext(ctx, rawQuery, quantity, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errx.ErrInsufficientStock
+	}
+	return nil
+}
+
+func (r *productRepository) RestoreVariantStock(ctx context.Context, id uuid.UUID, quantity int) error {
+	rawQuery := `
+		UPDATE product_variants
+		SET current_stock = current_stock + $1,
+		    updated_at = NOW()
+		WHERE id = $2
+	`
+	_, err := r.dbGetter(ctx).ExecContext(ctx, rawQuery, quantity, id)
+	return err
+}
+
 func (r *productRepository) GetImagesByProductIDs(ctx context.Context, productIDs []uuid.UUID) (map[uuid.UUID][]entity.ProductImage, error) {
 	result := make(map[uuid.UUID][]entity.ProductImage)
 	if len(productIDs) == 0 {
