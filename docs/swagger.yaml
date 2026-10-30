@@ -1724,6 +1724,55 @@ paths:
       summary: Checkout order
       tags:
       - Order
+  /api/v1/orders/seller:
+    get:
+      description: Retrieve orders for the authenticated seller's store with status
+        filtering and search
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: 'Status filter: all, WAITING_PAYMENT, WAITING_CONFIRMATION, IN_PROCESS,
+          READY_FOR_PICKUP, COMPLETED, CANCELLED'
+        in: query
+        name: tab
+        type: string
+      - description: Search by order number, customer name, or product name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Seller order list
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetOrdersResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Seller store not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List seller orders
+      tags:
+      - Order
   /api/v1/payments/midtrans/webhook:
     post:
       consumes:
