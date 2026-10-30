@@ -310,6 +310,43 @@ func (s *orderService) GetMyOrders(ctx context.Context, userID uuid.UUID, query 
 	}, nil
 }
 
+func (s *orderService) GetSellerOrders(ctx context.Context, userID uuid.UUID, query dto.GetOrdersQuery) (dto.GetOrdersResponse, error) {
+	store, err := s.storeRepo.GetStoreByUserID(ctx, userID)
+	if err != nil {
+		return dto.GetOrdersResponse{}, err
+	}
+	if store == nil {
+		return dto.GetOrdersResponse{}, errx.ErrStoreNotFound
+	}
+
+	pagination.Normalize(&query.Limit, &query.Page, &query.Offset, "order")
+	items, total, err := s.orderRepo.GetStoreOrders(ctx, store.ID, query)
+	if err != nil {
+		return dto.GetOrdersResponse{}, err
+	}
+
+	responses := make([]dto.OrderListItemResponse, 0, len(items))
+	for _, it := range items {
+		pickupStart := dto.FormatTimeStr(it.PickupTimeStart)
+		pickupEnd := dto.FormatTimeStr(it.PickupTimeEnd)
+		pickupSchedule := fmt.Sprintf("%s | %s – %s WIB", it.PickupDate.Format("02 January 2006"), pickupStart, pickupEnd)
+		responses = append(responses, dto.OrderListItemResponse{
+			ID: it.ID, OrderNumber: it.OrderNumber, StoreID: it.StoreID,
+			StoreName: it.StoreName, StoreAddress: it.StoreAddress,
+			PickupSchedule: pickupSchedule, TotalAmount: it.TotalAmount,
+			Status: string(it.Status), StatusLabel: dto.FormatStatusLabel(it.Status),
+			PaymentMethod: it.PaymentMethod, TotalItems: it.TotalItems,
+			SummaryItemName: it.SummaryItemName, SummaryImageURL: it.SummaryImageURL,
+			CreatedAt: dto.FormatTimeWIB(it.CreatedAt),
+		})
+	}
+
+	return dto.GetOrdersResponse{
+		Orders: responses,
+		Meta:   pagination.NewPaginationResponse(total, query.Page, query.Limit),
+	}, nil
+}
+
 func (s *orderService) GetOrderDetail(ctx context.Context, userID uuid.UUID, orderID uuid.UUID) (*dto.OrderDetailResponse, error) {
 	order, err := s.orderRepo.GetOrderByID(ctx, orderID)
 	if err != nil {

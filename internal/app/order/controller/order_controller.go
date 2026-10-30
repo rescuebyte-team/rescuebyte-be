@@ -76,6 +76,38 @@ func (c *orderController) GetMyOrders(ctx fiber.Ctx) error {
 	return response.SendResponse(ctx, fiber.StatusOK, res)
 }
 
+// GetSellerOrders godoc
+// @Summary List seller orders
+// @Description Retrieve orders for the authenticated seller's store with status filtering and search
+// @Tags Order
+// @Security BearerAuth
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(10)
+// @Param tab query string false "Status filter: all, WAITING_PAYMENT, WAITING_CONFIRMATION, IN_PROCESS, READY_FOR_PICKUP, COMPLETED, CANCELLED"
+// @Param search query string false "Search by order number, customer name, or product name"
+// @Success 200 {object} response.Response{payload=dto.GetOrdersResponse} "Seller order list"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "Seller store not found"
+// @Router /api/v1/orders/seller [get]
+func (c *orderController) GetSellerOrders(ctx fiber.Ctx) error {
+	claims, ok := ctx.Locals("claims").(jwt.Claims)
+	if !ok {
+		return errx.ErrUnauthorized
+	}
+
+	var query dto.GetOrdersQuery
+	if err := ctx.Bind().Query(&query); err != nil {
+		return errx.ErrBadRequest.WithError(err)
+	}
+
+	res, err := c.orderService.GetSellerOrders(ctx.Context(), claims.ID, query)
+	if err != nil {
+		return err
+	}
+	return response.SendResponse(ctx, fiber.StatusOK, res)
+}
+
 // GetOrderDetail godoc
 // @Summary Get order detail
 // @Description Retrieve complete order details including items, payment info, and 5-step status tracking

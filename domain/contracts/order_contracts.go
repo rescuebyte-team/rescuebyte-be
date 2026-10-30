@@ -24,6 +24,7 @@ type OrderRepository interface {
 type OrderService interface {
 	Checkout(ctx context.Context, userID uuid.UUID, req dto.CheckoutRequest) (*dto.CheckoutResponse, error)
 	GetMyOrders(ctx context.Context, userID uuid.UUID, query dto.GetOrdersQuery) (dto.GetOrdersResponse, error)
+	GetSellerOrders(ctx context.Context, userID uuid.UUID, query dto.GetOrdersQuery) (dto.GetOrdersResponse, error)
 	GetOrderDetail(ctx context.Context, userID uuid.UUID, orderID uuid.UUID) (*dto.OrderDetailResponse, error)
 	CancelOrder(ctx context.Context, userID uuid.UUID, orderID uuid.UUID, req dto.CancelOrderRequest) error
 	UpdateOrderStatusByMerchant(ctx context.Context, userID uuid.UUID, orderID uuid.UUID, req dto.UpdateOrderStatusRequest) (*dto.OrderDetailResponse, error)

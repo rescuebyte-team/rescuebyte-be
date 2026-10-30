@@ -23,6 +23,7 @@ func InitOrderController(
 	orderGroup := router.Group("/orders", middleware.RequireAuth())
 
 	orderGroup.Post("/checkout", ctr.Checkout)
+	orderGroup.Get("/seller", ctr.GetSellerOrders)
 	orderGroup.Get("", ctr.GetMyOrders)
 	orderGroup.Get("/:id", ctr.GetOrderDetail)
 	orderGroup.Post("/:id/cancel", ctr.CancelOrder)
