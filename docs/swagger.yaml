@@ -691,6 +691,9 @@ definitions:
         maxLength: 255
         minLength: 2
         type: string
+      stock:
+        minimum: 0
+        type: integer
     required:
     - name
     type: object

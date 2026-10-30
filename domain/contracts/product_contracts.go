@@ -23,6 +23,7 @@ type ProductRepository interface {
 	GetImagesByProductIDs(ctx context.Context, productIDs []uuid.UUID) (map[uuid.UUID][]entity.ProductImage, error)
 	UpdateProduct(ctx context.Context, product entity.Product) error
 	UpdateProductStatus(ctx context.Context, productID uuid.UUID, isActive bool) error
+	UpdateProductStock(ctx context.Context, productID uuid.UUID, stock int) error
 	DeleteProduct(ctx context.Context, id uuid.UUID) error
 }
 

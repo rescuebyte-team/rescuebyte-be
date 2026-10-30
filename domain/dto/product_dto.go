@@ -33,6 +33,7 @@ type UpdateProductRequest struct {
 	Name         string  `json:"name" validate:"required,min=2,max=255"`
 	Description  *string `json:"description" validate:"omitempty"`
 	MainImageURL *string `json:"main_image_url" validate:"omitempty,url"`
+	Stock        *int    `json:"stock" validate:"omitempty,gte=0"`
 	IsActive     *bool   `json:"is_active" validate:"omitempty"`
 }
 

@@ -233,7 +233,18 @@ func (s *productService) UpdateProduct(ctx context.Context, userID uuid.UUID, pr
 	}
 	product.UpdatedAt = time.Now()
 
-	if err := s.productRepo.UpdateProduct(ctx, *product); err != nil {
+	err = s.transactor.WithinTransaction(ctx, func(txCtx context.Context) error {
+		if err := s.productRepo.UpdateProduct(txCtx, *product); err != nil {
+			return err
+		}
+		if req.Stock != nil {
+			if err := s.productRepo.UpdateProductStock(txCtx, productID, *req.Stock); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
 		return nil, err
 	}
 

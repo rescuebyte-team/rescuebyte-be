@@ -434,6 +434,33 @@ func (r *productRepository) UpdateProductStatus(ctx context.Context, productID u
 	return err
 }
 
+func (r *productRepository) UpdateProductStock(ctx context.Context, productID uuid.UUID, stock int) error {
+	rawQuery := `
+		UPDATE product_variants
+		SET current_stock = $1,
+		    initial_stock = GREATEST(initial_stock, $1),
+		    updated_at = NOW()
+		WHERE id = (
+			SELECT id FROM product_variants
+			WHERE product_id = $2
+			ORDER BY sequence ASC
+			LIMIT 1
+		)
+	`
+	res, err := r.dbGetter(ctx).ExecContext(ctx, rawQuery, stock, productID)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errx.ErrVariantNotFound
+	}
+	return nil
+}
+
 func (r *productRepository) DeleteProduct(ctx context.Context, id uuid.UUID) error {
 	query, args, err := sq.
 		Delete("products").
