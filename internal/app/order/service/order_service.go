@@ -382,7 +382,9 @@ func (s *orderService) CancelOrder(ctx context.Context, userID uuid.UUID, orderI
 		}
 
 		// Update payment status to CANCEL
-		_ = s.paymentRepo.UpdatePaymentStatus(txCtx, order.ID, enums.PaymentStatusCancel, nil, nil, nil, nil)
+		if err := s.paymentRepo.UpdatePaymentStatus(txCtx, order.ID, enums.PaymentStatusCancel, nil, nil, nil, nil); err != nil {
+			return err
+		}
 
 		return nil
 	})
@@ -407,6 +409,22 @@ func (s *orderService) UpdateOrderStatusByMerchant(ctx context.Context, userID u
 	}
 
 	targetStatus := enums.OrderStatus(req.Status)
+	validTransition := false
+	switch order.Status {
+	case enums.OrderStatusWaitingConfirmation:
+		validTransition = targetStatus == enums.OrderStatusInProcess || targetStatus == enums.OrderStatusCancelled
+	case enums.OrderStatusInProcess:
+		validTransition = targetStatus == enums.OrderStatusReadyForPickup || targetStatus == enums.OrderStatusCancelled
+	case enums.OrderStatusReadyForPickup:
+		validTransition = targetStatus == enums.OrderStatusCompleted || targetStatus == enums.OrderStatusCancelled
+	}
+	if !validTransition {
+		return nil, errx.ErrInvalidOrderStatusTransition
+	}
+	if targetStatus == enums.OrderStatusCancelled && req.CancellationReason == nil {
+		reason := "Dibatalkan oleh merchant"
+		req.CancellationReason = &reason
+	}
 	timestampField := ""
 
 	switch targetStatus {
@@ -431,7 +449,9 @@ func (s *orderService) UpdateOrderStatusByMerchant(ctx context.Context, userID u
 					return err
 				}
 			}
-			_ = s.paymentRepo.UpdatePaymentStatus(txCtx, order.ID, enums.PaymentStatusCancel, nil, nil, nil, nil)
+			if err := s.paymentRepo.UpdatePaymentStatus(txCtx, order.ID, enums.PaymentStatusCancel, nil, nil, nil, nil); err != nil {
+				return err
+			}
 		}
 
 		return s.orderRepo.UpdateOrderStatus(txCtx, order.ID, targetStatus, timestampField, req.CancellationReason)

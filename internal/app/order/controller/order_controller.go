@@ -139,7 +139,9 @@ func (c *orderController) CancelOrder(ctx fiber.Ctx) error {
 	}
 
 	var req dto.CancelOrderRequest
-	_ = ctx.Bind().Body(&req)
+	if err := ctx.Bind().Body(&req); err != nil {
+		return errx.ErrBadRequest.WithError(err)
+	}
 
 	if err := c.orderService.CancelOrder(ctx.Context(), claims.ID, orderID, req); err != nil {
 		return err

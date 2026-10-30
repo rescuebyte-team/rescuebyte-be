@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -27,6 +28,12 @@ func (s *paymentService) HandleMidtransNotification(ctx context.Context, payload
 	order, err := s.orderRepo.GetOrderByNumber(ctx, payload.OrderID)
 	if err != nil {
 		return err
+	}
+	if payload.GrossAmount == "" || payload.GrossAmount != fmt.Sprintf("%d.00", order.TotalAmount) {
+		return errx.ErrInvalidPaymentSignature.WithMessage("Payment amount does not match the order total.")
+	}
+	if order.PaymentMethod != string(enums.PaymentMethodOnline) {
+		return errx.ErrInvalidPaymentSignature.WithMessage("Payment notification does not match the order payment method.")
 	}
 
 	now := time.Now()
@@ -58,6 +65,8 @@ func (s *paymentService) HandleMidtransNotification(ctx context.Context, payload
 	case "deny", "cancel", "expire":
 		if payload.TransactionStatus == "expire" {
 			targetPaymentStatus = enums.PaymentStatusExpire
+		} else if payload.TransactionStatus == "deny" {
+			targetPaymentStatus = enums.PaymentStatusDeny
 		} else {
 			targetPaymentStatus = enums.PaymentStatusCancel
 		}
@@ -76,6 +85,11 @@ func (s *paymentService) HandleMidtransNotification(ctx context.Context, payload
 	channel := payload.PaymentType
 
 	return s.transactor.WithinTransaction(ctx, func(txCtx context.Context) error {
+		// Midtrans can retry and deliver notifications out of order. A paid or
+		// cancelled order must not be reverted by a stale non-terminal event.
+		if order.Status != enums.OrderStatusWaitingPayment && targetPaymentStatus != enums.PaymentStatusRefund {
+			return nil
+		}
 		// Update payment
 		if err := s.paymentRepo.UpdatePaymentStatus(
 			txCtx,
@@ -90,7 +104,7 @@ func (s *paymentService) HandleMidtransNotification(ctx context.Context, payload
 		}
 
 		// Update order if status changed
-		if targetOrderStatus != nil && order.Status != *targetOrderStatus {
+		if targetOrderStatus != nil && order.Status == enums.OrderStatusWaitingPayment && order.Status != *targetOrderStatus {
 			timestampField := ""
 			var cancelReason *string
 
@@ -108,9 +122,12 @@ func (s *paymentService) HandleMidtransNotification(ctx context.Context, payload
 
 			if shouldRestoreStock {
 				items, err := s.orderRepo.GetOrderItems(txCtx, order.ID)
-				if err == nil {
-					for _, it := range items {
-						_ = s.productRepo.RestoreVariantStock(txCtx, it.ProductVariantID, it.Quantity)
+				if err != nil {
+					return err
+				}
+				for _, it := range items {
+					if err := s.productRepo.RestoreVariantStock(txCtx, it.ProductVariantID, it.Quantity); err != nil {
+						return err
 					}
 				}
 			}
