@@ -37,10 +37,15 @@ type googleOAuthImpl struct {
 var GoogleOAuth GoogleOAuthInterface = NewGoogleOAuth()
 
 func NewGoogleOAuth() GoogleOAuthInterface {
+	redirectURI := env.AppEnv.GoogleRedirectURI
+	if env.AppEnv.AppEnv == "production" {
+		redirectURI = env.AppEnv.FEAppURL
+	}
+
 	cfg := &oauth2.Config{
 		ClientID:     env.AppEnv.GoogleClientID,
 		ClientSecret: env.AppEnv.GoogleClientSecret,
-		RedirectURL:  env.AppEnv.GoogleRedirectURI,
+		RedirectURL:  redirectURI,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 			"https://www.googleapis.com/auth/userinfo.profile",
