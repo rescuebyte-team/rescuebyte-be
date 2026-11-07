@@ -139,6 +139,7 @@ Base URL: `http://localhost:8080/api/v1`
 | :--- | :--- | :--- | :--- |
 | `GET` | `/stores` | List registered stores (filter by `name`, `city`, geolocation radius `latitude` & `longitude`, pagination) | Public |
 | `GET` | `/stores/:id` | Get store details by UUID | Public |
+| `GET` | `/stores/:id/summary` | Get average rating and total reviews for a store | Public |
 | `POST` | `/stores` | Register a new store for a merchant | `RequireAuth()` |
 | `GET` | `/stores/me/profile` | Retrieve store profile of the authenticated user | `RequireAuth()` |
 | `PUT` | `/stores/me/profile` | Update store information (name, description, address, profile picture) | `RequireAuth()` |
