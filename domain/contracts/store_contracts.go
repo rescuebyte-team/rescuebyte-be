@@ -13,6 +13,7 @@ type StoreRepository interface {
 	CreateStore(ctx context.Context, store entity.Store) error
 	GetAllStores(ctx context.Context, query dto.GetAllStoresQuery) ([]entity.Store, int64, error)
 	GetStoreByID(ctx context.Context, id uuid.UUID) (*entity.Store, error)
+	GetStoreSummary(ctx context.Context, id uuid.UUID) (dto.StoreSummaryResponse, error)
 	GetStoreByUserID(ctx context.Context, userID uuid.UUID) (*entity.Store, error)
 	UpdateStoreProfile(ctx context.Context, store entity.Store) error
 	UpdateStoreOperational(ctx context.Context, store entity.Store) error
@@ -24,6 +25,7 @@ type StoreService interface {
 	GetAllStores(ctx context.Context, query dto.GetAllStoresQuery) (dto.GetStoresResponse, error)
 	GetMyStore(ctx context.Context, userID uuid.UUID) (*dto.StoreResponse, error)
 	GetStoreByID(ctx context.Context, id uuid.UUID) (*dto.StoreResponse, error)
+	GetStoreSummary(ctx context.Context, id uuid.UUID) (dto.StoreSummaryResponse, error)
 	UpdateStoreProfile(ctx context.Context, userID uuid.UUID, req dto.UpdateStoreProfileRequest) (*dto.StoreResponse, error)
 	UpdateStoreOperational(ctx context.Context, userID uuid.UUID, req dto.UpdateStoreOperationalRequest) (*dto.StoreResponse, error)
 	ToggleStoreStatus(ctx context.Context, userID uuid.UUID) (*dto.StoreResponse, error)
