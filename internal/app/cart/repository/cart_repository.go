@@ -8,10 +8,12 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
 	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers/pgerror"
 )
 
 func (r *cartRepository) GetOrCreateCartByUserID(ctx context.Context, userID uuid.UUID) (*entity.Cart, error) {
@@ -58,7 +60,7 @@ func (r *cartRepository) GetOrCreateCartByUserID(ctx context.Context, userID uui
 		if err2 == nil {
 			return &cart, nil
 		}
-		return nil, err
+		return nil, mapCartForeignKeyError(err, "cartRepository.GetOrCreateCartByUserID", userID, uuid.Nil, "")
 	}
 
 	return &entity.Cart{
@@ -194,6 +196,52 @@ func (r *cartRepository) UpsertCartItem(ctx context.Context, item entity.CartIte
 			updated_at = EXCLUDED.updated_at
 	`
 	_, err := r.dbGetter(ctx).ExecContext(ctx, rawQuery, item.ID, item.CartID, item.ProductVariantID, item.Quantity, item.CreatedAt, item.UpdatedAt)
+	return mapCartForeignKeyError(err, "cartRepository.UpsertCartItem", uuid.Nil, item.CartID, item.ProductVariantID.String())
+}
+
+func mapCartForeignKeyError(
+	err error,
+	location string,
+	userID,
+	cartID uuid.UUID,
+	variantID string,
+) error {
+	var pgErr *pgconn.PgError
+	if !errors.As(err, &pgErr) {
+		return err
+	}
+	customErr := pgerror.HandlePgError(*pgErr, []pgerror.PgError{
+		{
+			Code:           pgerror.ForeignKey,
+			ConstraintName: "carts_user_id_fkey",
+			Err: errx.ErrUserNotFound.WithDetails(map[string]any{
+				"user_id": userID,
+			}).
+				WithError(err).
+				WithLocation(location),
+		},
+		{
+			Code:           pgerror.ForeignKey,
+			ConstraintName: "cart_items_cart_id_fkey",
+			Err: errx.ErrNotFound.WithDetails(map[string]any{
+				"cart_id": cartID,
+			}).
+				WithError(err).
+				WithLocation(location),
+		},
+		{
+			Code:           pgerror.ForeignKey,
+			ConstraintName: "cart_items_product_variant_id_fkey",
+			Err: errx.ErrVariantNotFound.WithDetails(map[string]any{
+				"product_variant_id": variantID,
+			}).
+				WithError(err).
+				WithLocation(location),
+		},
+	})
+	if customErr != nil {
+		return customErr
+	}
 	return err
 }
 

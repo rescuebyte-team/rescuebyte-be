@@ -9,11 +9,13 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/rescuebyte/rescuebyte-be/domain/dto"
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
 	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers/pgerror"
 )
 
 var productSelectFields = []string{
@@ -41,6 +43,26 @@ func (r *productRepository) CreateProduct(ctx context.Context, product entity.Pr
 	}
 
 	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			customErr := pgerror.HandlePgError(*pgErr, []pgerror.PgError{
+				{
+					Code:           pgerror.ForeignKey,
+					ConstraintName: "fk_products_store_id",
+					Err: errx.ErrStoreNotFound.
+						WithDetails(map[string]any{
+							"store_id": product.StoreID,
+						}).
+						WithError(err).
+						WithLocation("productRepository.CreateProduct"),
+				},
+			})
+			if customErr != nil {
+				return customErr
+			}
+		}
+	}
 	return err
 }
 
@@ -63,6 +85,25 @@ func (r *productRepository) CreateProductVariants(ctx context.Context, variants 
 	}
 
 	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			customErr := pgerror.HandlePgError(*pgErr, []pgerror.PgError{
+				{
+					Code:           pgerror.ForeignKey,
+					ConstraintName: "fk_product_variants_product_id",
+					Err: errx.ErrProductNotFound.
+						WithDetails(map[string]any{
+							"product_id": variants[0].ProductID}).
+						WithError(err).
+						WithLocation("productRepository.CreateProductVariants"),
+				},
+			})
+			if customErr != nil {
+				return customErr
+			}
+		}
+	}
 	return err
 }
 
@@ -85,6 +126,25 @@ func (r *productRepository) CreateProductImages(ctx context.Context, images []en
 	}
 
 	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			customErr := pgerror.HandlePgError(*pgErr, []pgerror.PgError{
+				{
+					Code:           pgerror.ForeignKey,
+					ConstraintName: "fk_product_images_product_id",
+					Err: errx.ErrProductNotFound.
+						WithDetails(map[string]any{
+							"product_id": images[0].ProductID}).
+						WithError(err).
+						WithLocation("productRepository.CreateProductImages"),
+				},
+			})
+			if customErr != nil {
+				return customErr
+			}
+		}
+	}
 	return err
 }
 

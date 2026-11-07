@@ -15,6 +15,7 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
 	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers/pgerror"
 )
 
 func (r *commentRepository) CreateComment(ctx context.Context, comment entity.Comment) error {
@@ -33,14 +34,10 @@ func (r *commentRepository) CreateComment(ctx context.Context, comment entity.Co
 	}
 
 	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) && pgErr.Code == "23503" {
-		switch pgErr.ConstraintName {
-		case "comments_store_id_fkey":
-			return errx.ErrCommentStoreNotFound.WithDetails(map[string]any{"store_id": comment.StoreID}).WithError(err).WithLocation("commentRepository.CreateComment")
-		case "comments_product_id_fkey":
-			return errx.ErrCommentProductNotFound.WithDetails(map[string]any{"product_id": comment.ProductID}).WithError(err).WithLocation("commentRepository.CreateComment")
-		case "comments_user_id_fkey":
-			return errx.ErrUserNotFound.WithDetails(map[string]any{"user_id": comment.UserID}).WithError(err).WithLocation("commentRepository.CreateComment")
+	if errors.As(err, &pgErr) {
+		customErr := r.handleTargetForeignKeyError(err, pgErr, comment, "commentRepository.CreateComment")
+		if customErr != nil {
+			return customErr
 		}
 	}
 	return err
@@ -90,7 +87,7 @@ func (r *commentRepository) UpdateComment(ctx context.Context, comment entity.Co
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23503" {
-				return r.handleTargetForeignKeyError(err, pgErr, comment)
+				return r.handleTargetForeignKeyError(err, pgErr, comment, "commentRepository.UpdateComment")
 			}
 			if pgErr.Code == "23514" && pgErr.ConstraintName == "comments_rating_check" {
 				return errx.ErrInvalidCommentRating.WithDetails(map[string]any{"rating": req.Rating}).WithError(err).WithLocation("commentRepository.UpdateComment")
@@ -130,17 +127,48 @@ func (r *commentRepository) DeleteComment(ctx context.Context, commentID uuid.UU
 		WithLocation("commentRepository.DeleteComment"))
 }
 
-func (r *commentRepository) handleTargetForeignKeyError(err error, pgErr *pgconn.PgError, comment entity.Comment) error {
-	switch pgErr.ConstraintName {
-	case "comments_store_id_fkey":
-		return errx.ErrCommentStoreNotFound.WithDetails(map[string]any{"store_id": comment.StoreID}).WithError(err).WithLocation("commentRepository.UpdateComment")
-	case "comments_product_id_fkey":
-		return errx.ErrCommentProductNotFound.WithDetails(map[string]any{"product_id": comment.ProductID}).WithError(err).WithLocation("commentRepository.UpdateComment")
-	case "comments_user_id_fkey":
-		return errx.ErrUserNotFound.WithDetails(map[string]any{"user_id": comment.UserID}).WithError(err).WithLocation("commentRepository.UpdateComment")
-	default:
-		return err
+func (r *commentRepository) handleTargetForeignKeyError(
+	err error,
+	pgErr *pgconn.PgError,
+	comment entity.Comment,
+	location string,
+) error {
+	customErr := pgerror.HandlePgError(*pgErr, []pgerror.PgError{
+		{
+			Code:           pgerror.ForeignKey,
+			ConstraintName: "comments_store_id_fkey",
+			Err: errx.ErrCommentStoreNotFound.
+				WithDetails(map[string]any{
+					"store_id": comment.StoreID,
+				}).
+				WithError(err).
+				WithLocation(location),
+		},
+		{
+			Code:           pgerror.ForeignKey,
+			ConstraintName: "comments_product_id_fkey",
+			Err: errx.ErrCommentProductNotFound.
+				WithDetails(map[string]any{
+					"product_id": comment.ProductID,
+				}).
+				WithError(err).
+				WithLocation(location),
+		},
+		{
+			Code:           pgerror.ForeignKey,
+			ConstraintName: "comments_user_id_fkey",
+			Err: errx.ErrUserNotFound.
+				WithDetails(map[string]any{
+					"user_id": comment.UserID,
+				}).
+				WithError(err).
+				WithLocation(location),
+		},
+	})
+	if customErr != nil {
+		return customErr
 	}
+	return err
 }
 
 func commentSelect() sq.SelectBuilder {

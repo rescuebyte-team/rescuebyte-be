@@ -8,11 +8,13 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/enums"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
 	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers/pgerror"
 )
 
 var paymentSelectFields = []string{
@@ -38,6 +40,25 @@ func (r *paymentRepository) CreatePayment(ctx context.Context, payment entity.Pa
 	}
 
 	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			customErr := pgerror.HandlePgError(*pgErr, []pgerror.PgError{
+				{
+					Code:           pgerror.ForeignKey,
+					ConstraintName: "payments_order_id_fkey",
+					Err: errx.ErrOrderNotFound.
+						WithDetails(map[string]any{
+							"order_id": payment.OrderID}).
+						WithError(err).
+						WithLocation("paymentRepository.CreatePayment"),
+				},
+			})
+			if customErr != nil {
+				return customErr
+			}
+		}
+	}
 	return err
 }
 

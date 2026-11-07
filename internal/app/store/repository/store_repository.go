@@ -10,10 +10,12 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/rescuebyte/rescuebyte-be/domain/dto"
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
 	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers/pgerror"
 )
 
 var storeSelectFields = []string{
@@ -45,6 +47,24 @@ func (r *storeRepository) CreateStore(ctx context.Context, store entity.Store) e
 	}
 
 	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			customErr := pgerror.HandlePgError(*pgErr, []pgerror.PgError{
+				{
+					Code:           pgerror.ForeignKey,
+					ConstraintName: "fk_stores_user_id",
+					Err: errx.ErrUserNotFound.
+						WithDetails(map[string]any{"user_id": store.UserID}).
+						WithError(err).
+						WithLocation("storeRepository.CreateStore"),
+				},
+			})
+			if customErr != nil {
+				return customErr
+			}
+		}
+	}
 	return err
 }
 

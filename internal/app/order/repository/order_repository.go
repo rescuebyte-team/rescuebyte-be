@@ -9,12 +9,14 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/rescuebyte/rescuebyte-be/domain/dto"
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/enums"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
 	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers/pgerror"
 )
 
 var orderSelectFields = []string{
@@ -46,6 +48,34 @@ func (r *orderRepository) CreateOrder(ctx context.Context, order entity.Order) e
 	}
 
 	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			customErr := pgerror.HandlePgError(*pgErr, []pgerror.PgError{
+				{
+					Code:           pgerror.ForeignKey,
+					ConstraintName: "orders_user_id_fkey",
+					Err: errx.ErrUserNotFound.WithDetails(map[string]any{
+						"user_id": order.UserID,
+					}).
+						WithError(err).
+						WithLocation("orderRepository.CreateOrder"),
+				},
+				{
+					Code:           pgerror.ForeignKey,
+					ConstraintName: "orders_store_id_fkey",
+					Err: errx.ErrStoreNotFound.WithDetails(map[string]any{
+						"store_id": order.StoreID,
+					}).
+						WithError(err).
+						WithLocation("orderRepository.CreateOrder"),
+				},
+			})
+			if customErr != nil {
+				return customErr
+			}
+		}
+	}
 	return err
 }
 
@@ -74,6 +104,43 @@ func (r *orderRepository) CreateOrderItems(ctx context.Context, items []entity.O
 	}
 
 	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			customErr := pgerror.HandlePgError(*pgErr, []pgerror.PgError{
+				{
+					Code:           pgerror.ForeignKey,
+					ConstraintName: "order_items_order_id_fkey",
+					Err: errx.ErrOrderNotFound.
+						WithDetails(map[string]any{
+							"order_id": items[0].OrderID}).
+						WithError(err).
+						WithLocation("orderRepository.CreateOrderItems"),
+				},
+				{
+					Code:           pgerror.ForeignKey,
+					ConstraintName: "order_items_product_id_fkey",
+					Err: errx.ErrProductNotFound.
+						WithDetails(map[string]any{
+							"product_id": items[0].ProductID}).
+						WithError(err).
+						WithLocation("orderRepository.CreateOrderItems"),
+				},
+				{
+					Code:           pgerror.ForeignKey,
+					ConstraintName: "order_items_product_variant_id_fkey",
+					Err: errx.ErrVariantNotFound.
+						WithDetails(map[string]any{
+							"product_variant_id": items[0].ProductVariantID}).
+						WithError(err).
+						WithLocation("orderRepository.CreateOrderItems"),
+				},
+			})
+			if customErr != nil {
+				return customErr
+			}
+		}
+	}
 	return err
 }
 
