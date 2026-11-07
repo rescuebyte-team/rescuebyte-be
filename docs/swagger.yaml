@@ -707,6 +707,13 @@ definitions:
       whatsapp_number:
         type: string
     type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.StoreSummaryResponse:
+    properties:
+      average_rating:
+        type: number
+      total_comments:
+        type: integer
+    type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.ToggleProductStatusRequest:
     properties:
       is_active:
@@ -2692,6 +2699,38 @@ paths:
           schema:
             $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
       summary: Get store by ID
+      tags:
+      - Store
+  /api/v1/stores/{id}/summary:
+    get:
+      description: Get the average rating and total number of comments for a store
+      parameters:
+      - description: Store UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.StoreSummaryResponse'
+              type: object
+        "400":
+          description: Invalid UUID format
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Store not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      summary: Get store rating summary
       tags:
       - Store
   /api/v1/stores/{store_id}/comments:
