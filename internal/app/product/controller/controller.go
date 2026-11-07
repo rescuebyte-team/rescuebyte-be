@@ -22,15 +22,12 @@ func InitProductController(
 
 	productGroup := router.Group("/products")
 
-	// Public product endpoints
 	productGroup.Get("", ctr.GetAllProducts)
 	productGroup.Get("/:id", ctr.GetProductDetail)
 
-	// Protected merchant product operations
-	protected := productGroup.Group("", middleware.RequireAuth())
-	protected.Post("/", ctr.CreateProduct)
-	protected.Get("/me/list", ctr.GetMyProducts)
-	protected.Put("/:id", ctr.UpdateProduct)
-	protected.Patch("/:id/status", ctr.ToggleProductStatus)
-	protected.Delete("/:id", ctr.DeleteProduct)
+	productGroup.Post("/", middleware.RequireAuth(), ctr.CreateProduct)
+	productGroup.Get("/me/list", middleware.RequireAuth(), ctr.GetMyProducts)
+	productGroup.Put("/:id", middleware.RequireAuth(), ctr.UpdateProduct)
+	productGroup.Patch("/:id/status", middleware.RequireAuth(), ctr.ToggleProductStatus)
+	productGroup.Delete("/:id", middleware.RequireAuth(), ctr.DeleteProduct)
 }

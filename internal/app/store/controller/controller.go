@@ -21,15 +21,12 @@ func InitStoreController(
 	}
 
 	storeGroup := router.Group("/stores")
-	// Public store endpoints
 	storeGroup.Get("", ctr.GetAllStores)
 	storeGroup.Get("/:id", ctr.GetStoreByID)
 
-	// Protected merchant store endpoints
-	protected := storeGroup.Group("", middleware.RequireAuth())
-	protected.Post("/", ctr.CreateStore)
-	protected.Get("/me/profile", ctr.GetMyStore)
-	protected.Put("/me/profile", ctr.UpdateStoreProfile)
-	protected.Put("/me/operational", ctr.UpdateStoreOperational)
-	protected.Patch("/me/status", ctr.ToggleStoreStatus)
+	storeGroup.Post("/", middleware.RequireAuth(), ctr.CreateStore)
+	storeGroup.Get("/me/profile", middleware.RequireAuth(), ctr.GetMyStore)
+	storeGroup.Put("/me/profile", middleware.RequireAuth(), ctr.UpdateStoreProfile)
+	storeGroup.Put("/me/operational", middleware.RequireAuth(), ctr.UpdateStoreOperational)
+	storeGroup.Patch("/me/status", middleware.RequireAuth(), ctr.ToggleStoreStatus)
 }
