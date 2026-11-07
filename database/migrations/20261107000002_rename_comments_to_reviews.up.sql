@@ -1,0 +1,9 @@
+ALTER TABLE comments RENAME TO reviews;
+ALTER TABLE reviews RENAME CONSTRAINT comments_user_id_fkey TO reviews_user_id_fkey;
+ALTER TABLE reviews RENAME CONSTRAINT comments_store_id_fkey TO reviews_store_id_fkey;
+ALTER TABLE reviews RENAME CONSTRAINT comments_product_id_fkey TO reviews_product_id_fkey;
+ALTER TABLE reviews RENAME CONSTRAINT comments_exactly_one_target_check TO reviews_exactly_one_target_check;
+ALTER TABLE reviews RENAME CONSTRAINT comments_rating_check TO reviews_rating_check;
+ALTER INDEX idx_comments_store_created_at RENAME TO idx_reviews_store_created_at;
+ALTER INDEX idx_comments_product_created_at RENAME TO idx_reviews_product_created_at;
+ALTER INDEX idx_comments_user_id RENAME TO idx_reviews_user_id;
