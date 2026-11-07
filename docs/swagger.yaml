@@ -145,52 +145,6 @@ definitions:
       snap_token:
         type: string
     type: object
-  github_com_rescuebyte_rescuebyte-be_domain_dto.CommentAuthorResponse:
-    properties:
-      avatar_url:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      role:
-        type: string
-    type: object
-  github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse:
-    properties:
-      author:
-        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentAuthorResponse'
-      content:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: string
-      product_id:
-        type: string
-      rating:
-        type: integer
-      store_id:
-        type: string
-      updated_at:
-        type: string
-      user_id:
-        type: string
-    type: object
-  github_com_rescuebyte_rescuebyte-be_domain_dto.CreateCommentRequest:
-    properties:
-      content:
-        maxLength: 2000
-        minLength: 1
-        type: string
-      rating:
-        maximum: 5
-        minimum: 1
-        type: integer
-    required:
-    - content
-    - rating
-    type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.CreateProductRequest:
     properties:
       description:
@@ -241,6 +195,20 @@ definitions:
     - normal_price
     - rescue_price
     - sequence
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CreateReviewRequest:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+    required:
+    - content
+    - rating
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.CreateStoreRequest:
     properties:
@@ -294,15 +262,6 @@ definitions:
     - operational_start
     - whatsapp_number
     type: object
-  github_com_rescuebyte_rescuebyte-be_domain_dto.GetCommentsResponse:
-    properties:
-      comments:
-        items:
-          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse'
-        type: array
-      meta:
-        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_helpers_pagination.Response'
-    type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.GetOrdersResponse:
     properties:
       meta:
@@ -319,6 +278,15 @@ definitions:
       products:
         items:
           $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductCardResponse'
+        type: array
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.GetReviewsResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_helpers_pagination.Response'
+      reviews:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewResponse'
         type: array
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.GetStoresResponse:
@@ -639,6 +607,38 @@ definitions:
     - name
     - password
     type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewAuthorResponse:
+    properties:
+      avatar_url:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewResponse:
+    properties:
+      author:
+        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewAuthorResponse'
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      product_id:
+        type: string
+      rating:
+        type: integer
+      store_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.StoreCartGroup:
     properties:
       distance_km:
@@ -711,7 +711,7 @@ definitions:
     properties:
       average_rating:
         type: number
-      total_comments:
+      total_reviews:
         type: integer
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.ToggleProductStatusRequest:
@@ -726,20 +726,6 @@ definitions:
         type: integer
     required:
     - quantity
-    type: object
-  github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateCommentRequest:
-    properties:
-      content:
-        maxLength: 2000
-        minLength: 1
-        type: string
-      rating:
-        maximum: 5
-        minimum: 1
-        type: integer
-    required:
-    - content
-    - rating
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateOrderStatusRequest:
     properties:
@@ -791,6 +777,20 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateReviewRequest:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+    required:
+    - content
+    - rating
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateStoreOperationalRequest:
     properties:
@@ -1516,100 +1516,6 @@ paths:
       summary: Remove all items from a store
       tags:
       - Cart
-  /api/v1/comments/{id}:
-    delete:
-      description: Delete a comment. Only its author or an admin can delete it.
-      parameters:
-      - description: Comment UUID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
-            - properties:
-                payload:
-                  additionalProperties:
-                    type: string
-                  type: object
-              type: object
-        "400":
-          description: Invalid ID
-          schema:
-            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
-        "403":
-          description: Only the comment author or an admin can delete this comment
-          schema:
-            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
-        "404":
-          description: Comment not found
-          schema:
-            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Delete a comment
-      tags:
-      - Comment
-    patch:
-      consumes:
-      - application/json
-      description: Edit a comment's content and rating. Only its author or an admin
-        can edit it.
-      parameters:
-      - description: Comment UUID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Updated comment and rating
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateCommentRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
-            - properties:
-                payload:
-                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse'
-              type: object
-        "400":
-          description: Invalid ID or request
-          schema:
-            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
-        "403":
-          description: Only the comment author or an admin can edit this comment
-          schema:
-            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
-        "404":
-          description: Comment not found
-          schema:
-            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Edit a comment
-      tags:
-      - Comment
   /api/v1/enums:
     get:
       consumes:
@@ -2336,9 +2242,9 @@ paths:
       summary: Toggle product status
       tags:
       - Product
-  /api/v1/products/{product_id}/comments:
+  /api/v1/products/{product_id}/reviews:
     get:
-      description: List newest comments for a product, including author details
+      description: List newest reviews for a product, including author details
       parameters:
       - description: Product UUID
         in: path
@@ -2365,7 +2271,7 @@ paths:
             - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
             - properties:
                 payload:
-                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetCommentsResponse'
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetReviewsResponse'
               type: object
         "400":
           description: Invalid ID or query
@@ -2375,26 +2281,25 @@ paths:
           description: Product not found
           schema:
             $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
-      summary: List product comments
+      summary: List product reviews
       tags:
-      - Comment
+      - Review
     post:
       consumes:
       - application/json
-      description: Create a rating and comment for a product as the authenticated
-        user
+      description: Create a rating and review for a product as the authenticated user
       parameters:
       - description: Product UUID
         in: path
         name: product_id
         required: true
         type: string
-      - description: Comment and rating
+      - description: Review and rating
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateCommentRequest'
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateReviewRequest'
       produces:
       - application/json
       responses:
@@ -2405,7 +2310,7 @@ paths:
             - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
             - properties:
                 payload:
-                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse'
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewResponse'
               type: object
         "400":
           description: Invalid ID or request
@@ -2421,9 +2326,9 @@ paths:
             $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Create a product comment
+      summary: Create a product review
       tags:
-      - Comment
+      - Review
   /api/v1/products/me/list:
     get:
       description: Retrieve a list of products belonging to the merchant's store with
@@ -2482,6 +2387,100 @@ paths:
       summary: List merchant products
       tags:
       - Product
+  /api/v1/reviews/{id}:
+    delete:
+      description: Delete a review. Only its author or an admin can delete it.
+      parameters:
+      - description: Review UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "403":
+          description: Only the review author or an admin can delete this review
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Review not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a review
+      tags:
+      - Review
+    patch:
+      consumes:
+      - application/json
+      description: Edit a review's content and rating. Only its author or an admin
+        can edit it.
+      parameters:
+      - description: Review UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated review and rating
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateReviewRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewResponse'
+              type: object
+        "400":
+          description: Invalid ID or request
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "403":
+          description: Only the review author or an admin can edit this review
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Review not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Edit a review
+      tags:
+      - Review
   /api/v1/storage/upload:
     post:
       consumes:
@@ -2703,7 +2702,7 @@ paths:
       - Store
   /api/v1/stores/{id}/summary:
     get:
-      description: Get the average rating and total number of comments for a store
+      description: Get the average rating and total number of reviews for a store
       parameters:
       - description: Store UUID
         in: path
@@ -2733,9 +2732,9 @@ paths:
       summary: Get store rating summary
       tags:
       - Store
-  /api/v1/stores/{store_id}/comments:
+  /api/v1/stores/{store_id}/reviews:
     get:
-      description: List newest comments for a store, including author details
+      description: List newest reviews for a store, including author details
       parameters:
       - description: Store UUID
         in: path
@@ -2762,7 +2761,7 @@ paths:
             - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
             - properties:
                 payload:
-                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetCommentsResponse'
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetReviewsResponse'
               type: object
         "400":
           description: Invalid ID or query
@@ -2772,25 +2771,25 @@ paths:
           description: Store not found
           schema:
             $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
-      summary: List store comments
+      summary: List store reviews
       tags:
-      - Comment
+      - Review
     post:
       consumes:
       - application/json
-      description: Create a rating and comment for a store as the authenticated user
+      description: Create a rating and review for a store as the authenticated user
       parameters:
       - description: Store UUID
         in: path
         name: store_id
         required: true
         type: string
-      - description: Comment and rating
+      - description: Review and rating
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateCommentRequest'
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateReviewRequest'
       produces:
       - application/json
       responses:
@@ -2801,7 +2800,7 @@ paths:
             - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
             - properties:
                 payload:
-                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse'
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewResponse'
               type: object
         "400":
           description: Invalid ID or request
@@ -2817,9 +2816,9 @@ paths:
             $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Create a store comment
+      summary: Create a store review
       tags:
-      - Comment
+      - Review
   /api/v1/stores/me/operational:
     put:
       consumes:

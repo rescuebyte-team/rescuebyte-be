@@ -892,159 +892,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/comments/{id}": {
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Delete a comment. Only its author or an admin can delete it.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Comment"
-                ],
-                "summary": "Delete a comment",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Comment UUID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "payload": {
-                                            "type": "object",
-                                            "additionalProperties": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid ID",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Only the comment author or an admin can delete this comment",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Comment not found",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Edit a comment's content and rating. Only its author or an admin can edit it.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Comment"
-                ],
-                "summary": "Edit a comment",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Comment UUID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated comment and rating",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateCommentRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "payload": {
-                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid ID or request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Only the comment author or an admin can edit this comment",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Comment not found",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/enums": {
             "get": {
                 "description": "Retrieve system enums and lookup values (optional filter by comma-separated types)",
@@ -2304,16 +2151,16 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/products/{product_id}/comments": {
+        "/api/v1/products/{product_id}/reviews": {
             "get": {
-                "description": "List newest comments for a product, including author details",
+                "description": "List newest reviews for a product, including author details",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Comment"
+                    "Review"
                 ],
-                "summary": "List product comments",
+                "summary": "List product reviews",
                 "parameters": [
                     {
                         "type": "string",
@@ -2349,7 +2196,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "payload": {
-                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetCommentsResponse"
+                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetReviewsResponse"
                                         }
                                     }
                                 }
@@ -2376,7 +2223,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a rating and comment for a product as the authenticated user",
+                "description": "Create a rating and review for a product as the authenticated user",
                 "consumes": [
                     "application/json"
                 ],
@@ -2384,9 +2231,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Comment"
+                    "Review"
                 ],
-                "summary": "Create a product comment",
+                "summary": "Create a product review",
                 "parameters": [
                     {
                         "type": "string",
@@ -2396,12 +2243,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Comment and rating",
+                        "description": "Review and rating",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateCommentRequest"
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateReviewRequest"
                         }
                     }
                 ],
@@ -2417,7 +2264,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "payload": {
-                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse"
+                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewResponse"
                                         }
                                     }
                                 }
@@ -2438,6 +2285,159 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Product not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/reviews/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a review. Only its author or an admin can delete it.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Review"
+                ],
+                "summary": "Delete a review",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Review UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Only the review author or an admin can delete this review",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Review not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Edit a review's content and rating. Only its author or an admin can edit it.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Review"
+                ],
+                "summary": "Edit a review",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Review UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated review and rating",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateReviewRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "payload": {
+                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID or request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Only the review author or an admin can edit this review",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Review not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse"
                         }
@@ -3062,7 +3062,7 @@ const docTemplate = `{
         },
         "/api/v1/stores/{id}/summary": {
             "get": {
-                "description": "Get the average rating and total number of comments for a store",
+                "description": "Get the average rating and total number of reviews for a store",
                 "produces": [
                     "application/json"
                 ],
@@ -3113,16 +3113,16 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/stores/{store_id}/comments": {
+        "/api/v1/stores/{store_id}/reviews": {
             "get": {
-                "description": "List newest comments for a store, including author details",
+                "description": "List newest reviews for a store, including author details",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Comment"
+                    "Review"
                 ],
-                "summary": "List store comments",
+                "summary": "List store reviews",
                 "parameters": [
                     {
                         "type": "string",
@@ -3158,7 +3158,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "payload": {
-                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetCommentsResponse"
+                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetReviewsResponse"
                                         }
                                     }
                                 }
@@ -3185,7 +3185,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a rating and comment for a store as the authenticated user",
+                "description": "Create a rating and review for a store as the authenticated user",
                 "consumes": [
                     "application/json"
                 ],
@@ -3193,9 +3193,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Comment"
+                    "Review"
                 ],
-                "summary": "Create a store comment",
+                "summary": "Create a store review",
                 "parameters": [
                     {
                         "type": "string",
@@ -3205,12 +3205,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Comment and rating",
+                        "description": "Review and rating",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateCommentRequest"
+                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateReviewRequest"
                         }
                     }
                 ],
@@ -3226,7 +3226,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "payload": {
-                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse"
+                                            "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewResponse"
                                         }
                                     }
                                 }
@@ -3706,74 +3706,6 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rescuebyte_rescuebyte-be_domain_dto.CommentAuthorResponse": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse": {
-            "type": "object",
-            "properties": {
-                "author": {
-                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentAuthorResponse"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "product_id": {
-                    "type": "string"
-                },
-                "rating": {
-                    "type": "integer"
-                },
-                "store_id": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_rescuebyte_rescuebyte-be_domain_dto.CreateCommentRequest": {
-            "type": "object",
-            "required": [
-                "content",
-                "rating"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string",
-                    "maxLength": 2000,
-                    "minLength": 1
-                },
-                "rating": {
-                    "type": "integer",
-                    "maximum": 5,
-                    "minimum": 1
-                }
-            }
-        },
         "github_com_rescuebyte_rescuebyte-be_domain_dto.CreateProductRequest": {
             "type": "object",
             "required": [
@@ -3840,6 +3772,25 @@ const docTemplate = `{
                 },
                 "sequence": {
                     "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.CreateReviewRequest": {
+            "type": "object",
+            "required": [
+                "content",
+                "rating"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "minLength": 1
+                },
+                "rating": {
+                    "type": "integer",
+                    "maximum": 5,
                     "minimum": 1
                 }
             }
@@ -3913,20 +3864,6 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rescuebyte_rescuebyte-be_domain_dto.GetCommentsResponse": {
-            "type": "object",
-            "properties": {
-                "comments": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_helpers_pagination.Response"
-                }
-            }
-        },
         "github_com_rescuebyte_rescuebyte-be_domain_dto.GetOrdersResponse": {
             "type": "object",
             "properties": {
@@ -3951,6 +3888,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ProductCardResponse"
+                    }
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.GetReviewsResponse": {
+            "type": "object",
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_helpers_pagination.Response"
+                },
+                "reviews": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewResponse"
                     }
                 }
             }
@@ -4436,6 +4387,55 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewAuthorResponse": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewResponse": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.ReviewAuthorResponse"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                },
+                "store_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_rescuebyte_rescuebyte-be_domain_dto.StoreCartGroup": {
             "type": "object",
             "properties": {
@@ -4545,7 +4545,7 @@ const docTemplate = `{
                 "average_rating": {
                     "type": "number"
                 },
-                "total_comments": {
+                "total_reviews": {
                     "type": "integer"
                 }
             }
@@ -4566,25 +4566,6 @@ const docTemplate = `{
             "properties": {
                 "quantity": {
                     "type": "integer",
-                    "minimum": 1
-                }
-            }
-        },
-        "github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateCommentRequest": {
-            "type": "object",
-            "required": [
-                "content",
-                "rating"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string",
-                    "maxLength": 2000,
-                    "minLength": 1
-                },
-                "rating": {
-                    "type": "integer",
-                    "maximum": 5,
                     "minimum": 1
                 }
             }
@@ -4659,6 +4640,25 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 20,
                     "minLength": 8
+                }
+            }
+        },
+        "github_com_rescuebyte_rescuebyte-be_domain_dto.UpdateReviewRequest": {
+            "type": "object",
+            "required": [
+                "content",
+                "rating"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "minLength": 1
+                },
+                "rating": {
+                    "type": "integer",
+                    "maximum": 5,
+                    "minimum": 1
                 }
             }
         },
