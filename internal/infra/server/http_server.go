@@ -17,9 +17,6 @@ import (
 	cartCtr "github.com/rescuebyte/rescuebyte-be/internal/app/cart/controller"
 	cartRepo "github.com/rescuebyte/rescuebyte-be/internal/app/cart/repository"
 	cartSvc "github.com/rescuebyte/rescuebyte-be/internal/app/cart/service"
-	commentCtr "github.com/rescuebyte/rescuebyte-be/internal/app/comment/controller"
-	commentRepo "github.com/rescuebyte/rescuebyte-be/internal/app/comment/repository"
-	commentSvc "github.com/rescuebyte/rescuebyte-be/internal/app/comment/service"
 	enumCtr "github.com/rescuebyte/rescuebyte-be/internal/app/enum/controller"
 	enumSvc "github.com/rescuebyte/rescuebyte-be/internal/app/enum/service"
 	orderCtr "github.com/rescuebyte/rescuebyte-be/internal/app/order/controller"
@@ -31,6 +28,9 @@ import (
 	productCtr "github.com/rescuebyte/rescuebyte-be/internal/app/product/controller"
 	productRepo "github.com/rescuebyte/rescuebyte-be/internal/app/product/repository"
 	productSvc "github.com/rescuebyte/rescuebyte-be/internal/app/product/service"
+	reviewCtr "github.com/rescuebyte/rescuebyte-be/internal/app/review/controller"
+	reviewRepo "github.com/rescuebyte/rescuebyte-be/internal/app/review/repository"
+	reviewSvc "github.com/rescuebyte/rescuebyte-be/internal/app/review/service"
 	storageCtr "github.com/rescuebyte/rescuebyte-be/internal/app/storage/controller"
 	storageSvc "github.com/rescuebyte/rescuebyte-be/internal/app/storage/service"
 	storeCtr "github.com/rescuebyte/rescuebyte-be/internal/app/store/controller"
@@ -127,7 +127,7 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 	storeRepository := storeRepo.NewStoreRepository(dbGetter)
 	productRepository := productRepo.NewProductRepository(dbGetter)
 	cartRepository := cartRepo.NewCartRepository(dbGetter)
-	commentRepository := commentRepo.NewCommentRepository(dbGetter)
+	reviewRepository := reviewRepo.NewReviewRepository(dbGetter)
 	orderRepository := orderRepo.NewOrderRepository(dbGetter)
 	paymentRepository := paymentRepo.NewPaymentRepository(dbGetter)
 
@@ -174,8 +174,8 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 		validatorService,
 		uuidService,
 	)
-	commentService := commentSvc.NewCommentService(
-		commentRepository,
+	reviewService := reviewSvc.NewReviewService(
+		reviewRepository,
 		storeRepository,
 		productRepository,
 		validatorService,
@@ -228,7 +228,7 @@ func (s *httpServer) MountRoutes(db *sqlx.DB, redisClient *redis.Client) {
 	productCtr.InitProductController(v1, productService, middleware)
 	storageCtr.InitStorageController(v1, storageService, middleware)
 	cartCtr.InitCartController(v1, cartService, middleware)
-	commentCtr.InitCommentController(v1, commentService, middleware)
+	reviewCtr.InitReviewController(v1, reviewService, middleware)
 	orderCtr.InitOrderController(v1, orderService, middleware)
 	paymentCtr.InitPaymentController(v1, paymentService, middleware)
 }
