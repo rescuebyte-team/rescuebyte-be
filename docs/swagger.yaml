@@ -145,6 +145,52 @@ definitions:
       snap_token:
         type: string
     type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CommentAuthorResponse:
+    properties:
+      avatar_url:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse:
+    properties:
+      author:
+        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentAuthorResponse'
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      product_id:
+        type: string
+      rating:
+        type: integer
+      store_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.CreateCommentRequest:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+    required:
+    - content
+    - rating
+    type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.CreateProductRequest:
     properties:
       description:
@@ -247,6 +293,15 @@ definitions:
     - operational_end
     - operational_start
     - whatsapp_number
+    type: object
+  github_com_rescuebyte_rescuebyte-be_domain_dto.GetCommentsResponse:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_helpers_pagination.Response'
     type: object
   github_com_rescuebyte_rescuebyte-be_domain_dto.GetOrdersResponse:
     properties:
@@ -2166,6 +2221,94 @@ paths:
       summary: Toggle product status
       tags:
       - Product
+  /api/v1/products/{product_id}/comments:
+    get:
+      description: List newest comments for a product, including author details
+      parameters:
+      - description: Product UUID
+        in: path
+        name: product_id
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetCommentsResponse'
+              type: object
+        "400":
+          description: Invalid ID or query
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Product not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      summary: List product comments
+      tags:
+      - Comment
+    post:
+      consumes:
+      - application/json
+      description: Create a rating and comment for a product as the authenticated
+        user
+      parameters:
+      - description: Product UUID
+        in: path
+        name: product_id
+        required: true
+        type: string
+      - description: Comment and rating
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse'
+              type: object
+        "400":
+          description: Invalid ID or request
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Product not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a product comment
+      tags:
+      - Comment
   /api/v1/products/me/list:
     get:
       description: Retrieve a list of products belonging to the merchant's store with
@@ -2443,6 +2586,93 @@ paths:
       summary: Get store by ID
       tags:
       - Store
+  /api/v1/stores/{store_id}/comments:
+    get:
+      description: List newest comments for a store, including author details
+      parameters:
+      - description: Store UUID
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.GetCommentsResponse'
+              type: object
+        "400":
+          description: Invalid ID or query
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Store not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      summary: List store comments
+      tags:
+      - Comment
+    post:
+      consumes:
+      - application/json
+      description: Create a rating and comment for a store as the authenticated user
+      parameters:
+      - description: Store UUID
+        in: path
+        name: store_id
+        required: true
+        type: string
+      - description: Comment and rating
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CreateCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.Response'
+            - properties:
+                payload:
+                  $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_domain_dto.CommentResponse'
+              type: object
+        "400":
+          description: Invalid ID or request
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+        "404":
+          description: Store not found
+          schema:
+            $ref: '#/definitions/github_com_rescuebyte_rescuebyte-be_pkg_helpers_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a store comment
+      tags:
+      - Comment
   /api/v1/stores/me/operational:
     put:
       consumes:
