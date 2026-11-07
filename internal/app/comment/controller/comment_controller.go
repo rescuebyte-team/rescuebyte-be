@@ -141,3 +141,66 @@ func (c *commentController) GetProductComments(ctx fiber.Ctx) error {
 	}
 	return response.SendResponse(ctx, fiber.StatusOK, result)
 }
+
+// UpdateComment godoc
+// @Summary Edit a comment
+// @Description Edit a comment's content and rating. Only its author or an admin can edit it.
+// @Tags Comment
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Comment UUID"
+// @Param request body dto.UpdateCommentRequest true "Updated comment and rating"
+// @Success 200 {object} response.Response{payload=dto.CommentResponse}
+// @Failure 400 {object} response.ErrorResponse "Invalid ID or request"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 403 {object} response.ErrorResponse "Only the comment author or an admin can edit this comment"
+// @Failure 404 {object} response.ErrorResponse "Comment not found"
+// @Router /api/v1/comments/{id} [patch]
+func (c *commentController) UpdateComment(ctx fiber.Ctx) error {
+	claims, ok := ctx.Locals("claims").(jwt.Claims)
+	if !ok {
+		return errx.ErrUnauthorized
+	}
+	commentID, err := parseTargetID(ctx, "id")
+	if err != nil {
+		return err
+	}
+	var req dto.UpdateCommentRequest
+	if err := ctx.Bind().Body(&req); err != nil {
+		return errx.ErrBadRequest.WithError(err)
+	}
+	result, err := c.commentService.UpdateComment(ctx.Context(), claims.ID, claims.Role, commentID, req)
+	if err != nil {
+		return err
+	}
+	return response.SendResponse(ctx, fiber.StatusOK, result)
+}
+
+// DeleteComment godoc
+// @Summary Delete a comment
+// @Description Delete a comment. Only its author or an admin can delete it.
+// @Tags Comment
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Comment UUID"
+// @Success 200 {object} response.Response{payload=map[string]string}
+// @Failure 400 {object} response.ErrorResponse "Invalid ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 403 {object} response.ErrorResponse "Only the comment author or an admin can delete this comment"
+// @Failure 404 {object} response.ErrorResponse "Comment not found"
+// @Router /api/v1/comments/{id} [delete]
+func (c *commentController) DeleteComment(ctx fiber.Ctx) error {
+	claims, ok := ctx.Locals("claims").(jwt.Claims)
+	if !ok {
+		return errx.ErrUnauthorized
+	}
+	commentID, err := parseTargetID(ctx, "id")
+	if err != nil {
+		return err
+	}
+	if err := c.commentService.DeleteComment(ctx.Context(), claims.ID, claims.Role, commentID); err != nil {
+		return err
+	}
+	return response.SendResponse(ctx, fiber.StatusOK, map[string]string{"message": "Comment deleted successfully"})
+}

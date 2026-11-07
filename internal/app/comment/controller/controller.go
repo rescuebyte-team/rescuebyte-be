@@ -21,4 +21,8 @@ func InitCommentController(router fiber.Router, commentService contracts.Comment
 	productComments := router.Group("/products/:product_id/comments")
 	productComments.Get("", ctr.GetProductComments)
 	productComments.Post("", middleware.RequireAuth(), ctr.CreateProductComment)
+
+	protectedComments := router.Group("/comments", middleware.RequireAuth())
+	protectedComments.Patch("/:id", ctr.UpdateComment)
+	protectedComments.Delete("/:id", ctr.DeleteComment)
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/rescuebyte/rescuebyte-be/domain/dto"
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
+	"github.com/rescuebyte/rescuebyte-be/domain/enums"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
 	"github.com/rescuebyte/rescuebyte-be/domain/helpers/pagination"
 )
@@ -85,6 +86,40 @@ func (s *commentService) GetProductComments(ctx context.Context, productID uuid.
 		return dto.GetCommentsResponse{}, err
 	}
 	return s.list(ctx, false, productID, query)
+}
+
+func (s *commentService) UpdateComment(ctx context.Context, userID uuid.UUID, roleID enums.UserRoleIdx, commentID uuid.UUID, req dto.UpdateCommentRequest) (*dto.CommentResponse, error) {
+	if err := s.validator.Validate(req); err != nil {
+		return nil, err
+	}
+	comment, err := s.commentRepo.GetCommentByID(ctx, commentID)
+	if err != nil {
+		return nil, err
+	}
+	if roleID != enums.RoleAdminIdx && comment.UserID != userID {
+		return nil, errx.ErrForbidden
+	}
+
+	if err := s.commentRepo.UpdateComment(ctx, *comment, req); err != nil {
+		return nil, err
+	}
+	updated, err := s.commentRepo.GetCommentByID(ctx, commentID)
+	if err != nil {
+		return nil, err
+	}
+	res := dto.FormatToCommentResponse(*updated)
+	return &res, nil
+}
+
+func (s *commentService) DeleteComment(ctx context.Context, userID uuid.UUID, roleID enums.UserRoleIdx, commentID uuid.UUID) error {
+	comment, err := s.commentRepo.GetCommentByID(ctx, commentID)
+	if err != nil {
+		return err
+	}
+	if roleID != enums.RoleAdminIdx && comment.UserID != userID {
+		return errx.ErrForbidden
+	}
+	return s.commentRepo.DeleteComment(ctx, commentID)
 }
 
 func (s *commentService) newComment(userID uuid.UUID, req dto.CreateCommentRequest) (entity.Comment, error) {

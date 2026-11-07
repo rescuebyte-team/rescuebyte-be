@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -13,6 +14,7 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/domain/dto"
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
 )
 
 func (r *commentRepository) CreateComment(ctx context.Context, comment entity.Comment) error {
@@ -64,11 +66,81 @@ func (r *commentRepository) GetCommentByID(ctx context.Context, commentID uuid.U
 	err = r.dbGetter(ctx).GetContext(ctx, &comment, query, args...)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errx.ErrNotFound
+			return nil, errx.ErrCommentNotFound.WithDetails(map[string]any{"id": commentID}).WithLocation("commentRepository.GetCommentByID")
 		}
 		return nil, err
 	}
 	return &comment, nil
+}
+
+func (r *commentRepository) UpdateComment(ctx context.Context, comment entity.Comment, req dto.UpdateCommentRequest) error {
+	query, args, err := sq.Update("comments").
+		Set("content", req.Content).
+		Set("rating", req.Rating).
+		Set("updated_at", time.Now()).
+		Where(sq.Eq{"id": comment.ID}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+	if err != nil {
+		return err
+	}
+
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23503" {
+				return r.handleTargetForeignKeyError(err, pgErr, comment)
+			}
+			if pgErr.Code == "23514" && pgErr.ConstraintName == "comments_rating_check" {
+				return errx.ErrInvalidCommentRating.WithDetails(map[string]any{"rating": req.Rating}).WithError(err).WithLocation("commentRepository.UpdateComment")
+			}
+		}
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrCommentNotFound.
+		WithDetails(map[string]any{"id": comment.ID}).
+		WithLocation("commentRepository.UpdateComment"))
+}
+
+func (r *commentRepository) DeleteComment(ctx context.Context, commentID uuid.UUID) error {
+	query, args, err := sq.Delete("comments").
+		Where(sq.Eq{"id": commentID}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+	if err != nil {
+		return err
+	}
+
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrCommentNotFound.
+		WithDetails(map[string]any{"id": commentID}).
+		WithLocation("commentRepository.DeleteComment"))
+}
+
+func (r *commentRepository) handleTargetForeignKeyError(err error, pgErr *pgconn.PgError, comment entity.Comment) error {
+	switch pgErr.ConstraintName {
+	case "comments_store_id_fkey":
+		return errx.ErrCommentStoreNotFound.WithDetails(map[string]any{"store_id": comment.StoreID}).WithError(err).WithLocation("commentRepository.UpdateComment")
+	case "comments_product_id_fkey":
+		return errx.ErrCommentProductNotFound.WithDetails(map[string]any{"product_id": comment.ProductID}).WithError(err).WithLocation("commentRepository.UpdateComment")
+	case "comments_user_id_fkey":
+		return errx.ErrUserNotFound.WithDetails(map[string]any{"user_id": comment.UserID}).WithError(err).WithLocation("commentRepository.UpdateComment")
+	default:
+		return err
+	}
 }
 
 func commentSelect() sq.SelectBuilder {
