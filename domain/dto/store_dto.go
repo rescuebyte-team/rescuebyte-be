@@ -79,6 +79,11 @@ type GetStoresResponse struct {
 	Meta   pagination.Response `json:"meta"`
 }
 
+type StoreSummaryResponse struct {
+	AverageRating float64 `json:"average_rating"`
+	TotalComments int64   `json:"total_comments"`
+}
+
 func FormatToStoreResponse(store entity.Store) StoreResponse {
 	return StoreResponse{
 		ID:                store.ID,
