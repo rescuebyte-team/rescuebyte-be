@@ -167,6 +167,13 @@ func (s *storeService) GetStoreByID(ctx context.Context, id uuid.UUID) (*dto.Sto
 	return &res, nil
 }
 
+func (s *storeService) GetStoreSummary(ctx context.Context, id uuid.UUID) (dto.StoreSummaryResponse, error) {
+	if _, err := s.storeRepo.GetStoreByID(ctx, id); err != nil {
+		return dto.StoreSummaryResponse{}, err
+	}
+	return s.storeRepo.GetStoreSummary(ctx, id)
+}
+
 func (s *storeService) UpdateStoreProfile(ctx context.Context, userID uuid.UUID, req dto.UpdateStoreProfileRequest) (*dto.StoreResponse, error) {
 	if err := s.validator.Validate(req); err != nil {
 		return nil, err

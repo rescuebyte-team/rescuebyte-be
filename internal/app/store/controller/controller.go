@@ -23,6 +23,7 @@ func InitStoreController(
 	storeGroup := router.Group("/stores")
 	storeGroup.Get("", ctr.GetAllStores)
 	storeGroup.Get("/:id", ctr.GetStoreByID)
+	storeGroup.Get("/:id/summary", ctr.GetStoreSummary)
 
 	storeGroup.Post("/", middleware.RequireAuth(), ctr.CreateStore)
 	storeGroup.Get("/me/profile", middleware.RequireAuth(), ctr.GetMyStore)

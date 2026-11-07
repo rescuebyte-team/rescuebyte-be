@@ -121,6 +121,28 @@ func (c *storeController) GetStoreByID(ctx fiber.Ctx) error {
 	return response.SendResponse(ctx, fiber.StatusOK, res)
 }
 
+// GetStoreSummary godoc
+// @Summary Get store rating summary
+// @Description Get the average rating and total number of comments for a store
+// @Tags Store
+// @Produce json
+// @Param id path string true "Store UUID"
+// @Success 200 {object} response.Response{payload=dto.StoreSummaryResponse}
+// @Failure 400 {object} response.ErrorResponse "Invalid UUID format"
+// @Failure 404 {object} response.ErrorResponse "Store not found"
+// @Router /api/v1/stores/{id}/summary [get]
+func (c *storeController) GetStoreSummary(ctx fiber.Ctx) error {
+	storeID, err := uuid.Parse(ctx.Params("id"))
+	if err != nil {
+		return errx.ErrBadRequest.WithError(err)
+	}
+	res, err := c.storeService.GetStoreSummary(ctx.Context(), storeID)
+	if err != nil {
+		return err
+	}
+	return response.SendResponse(ctx, fiber.StatusOK, res)
+}
+
 // UpdateStoreProfile godoc
 // @Summary Update store profile
 // @Description Update basic store details (name, description, contact, location)
