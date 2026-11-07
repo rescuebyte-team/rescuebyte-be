@@ -145,7 +145,7 @@ func (r *storeRepository) GetStoreByID(ctx context.Context, id uuid.UUID) (*enti
 
 func (r *storeRepository) GetStoreSummary(ctx context.Context, id uuid.UUID) (dto.StoreSummaryResponse, error) {
 	var summary dto.StoreSummaryResponse
-	query := `SELECT COALESCE(AVG(rating), 0)::float8 AS average_rating, COUNT(*) AS total_comments FROM comments WHERE store_id = $1`
+	query := `SELECT COALESCE(AVG(rating), 0)::float8 AS average_rating, COUNT(*) AS total_reviews FROM reviews WHERE store_id = $1`
 	if err := r.dbGetter(ctx).GetContext(ctx, &summary, query, id); err != nil {
 		return dto.StoreSummaryResponse{}, err
 	}

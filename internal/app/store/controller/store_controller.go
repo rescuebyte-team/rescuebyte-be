@@ -123,7 +123,7 @@ func (c *storeController) GetStoreByID(ctx fiber.Ctx) error {
 
 // GetStoreSummary godoc
 // @Summary Get store rating summary
-// @Description Get the average rating and total number of comments for a store
+// @Description Get the average rating and total number of reviews for a store
 // @Tags Store
 // @Produce json
 // @Param id path string true "Store UUID"

@@ -81,7 +81,7 @@ type GetStoresResponse struct {
 
 type StoreSummaryResponse struct {
 	AverageRating float64 `json:"average_rating" db:"average_rating"`
-	TotalComments int64   `json:"total_comments" db:"total_comments"`
+	TotalReviews  int64   `json:"total_reviews" db:"total_reviews"`
 }
 
 func FormatToStoreResponse(store entity.Store) StoreResponse {
