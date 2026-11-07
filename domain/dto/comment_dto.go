@@ -14,6 +14,11 @@ type CreateCommentRequest struct {
 	Rating  int    `json:"rating" validate:"required,gte=1,lte=5"`
 }
 
+type UpdateCommentRequest struct {
+	Content string `json:"content" validate:"required,min=1,max=2000"`
+	Rating  int    `json:"rating" validate:"required,gte=1,lte=5"`
+}
+
 type CommentAuthorResponse struct {
 	ID        uuid.UUID `json:"id"`
 	Name      string    `json:"name"`
