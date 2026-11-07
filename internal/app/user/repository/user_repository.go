@@ -12,6 +12,7 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/enums"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
 )
 
 var userSelectFields = []string{
@@ -129,8 +130,17 @@ func (r *userRepository) UpdateUser(ctx context.Context, user entity.User) error
 		return err
 	}
 
-	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
-	return err
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrUserNotFound.
+		WithDetails(map[string]any{"id": user.ID}).
+		WithLocation("userRepository.UpdateUser"))
 }
 
 func (r *userRepository) CreateRefreshToken(ctx context.Context, token entity.RefreshToken) error {

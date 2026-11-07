@@ -13,6 +13,7 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/domain/dto"
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
 )
 
 var productSelectFields = []string{
@@ -414,8 +415,17 @@ func (r *productRepository) UpdateProduct(ctx context.Context, product entity.Pr
 		return err
 	}
 
-	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
-	return err
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrProductNotFound.
+		WithDetails(map[string]any{"id": product.ID}).
+		WithLocation("productRepository.UpdateProduct"))
 }
 
 func (r *productRepository) UpdateProductStatus(ctx context.Context, productID uuid.UUID, isActive bool) error {
@@ -430,8 +440,17 @@ func (r *productRepository) UpdateProductStatus(ctx context.Context, productID u
 		return err
 	}
 
-	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
-	return err
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrProductNotFound.
+		WithDetails(map[string]any{"id": productID}).
+		WithLocation("productRepository.UpdateProductStatus"))
 }
 
 func (r *productRepository) UpdateProductStock(ctx context.Context, productID uuid.UUID, stock int) error {
@@ -455,10 +474,9 @@ func (r *productRepository) UpdateProductStock(ctx context.Context, productID uu
 	if err != nil {
 		return err
 	}
-	if rowsAffected == 0 {
-		return errx.ErrVariantNotFound
-	}
-	return nil
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrVariantNotFound.
+		WithDetails(map[string]any{"product_id": productID}).
+		WithLocation("productRepository.UpdateProductStock"))
 }
 
 func (r *productRepository) DeleteProduct(ctx context.Context, id uuid.UUID) error {
@@ -471,6 +489,15 @@ func (r *productRepository) DeleteProduct(ctx context.Context, id uuid.UUID) err
 		return err
 	}
 
-	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
-	return err
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrProductNotFound.
+		WithDetails(map[string]any{"id": id}).
+		WithLocation("productRepository.DeleteProduct"))
 }

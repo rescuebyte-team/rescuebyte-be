@@ -13,6 +13,7 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/domain/dto"
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
 )
 
 var storeSelectFields = []string{
@@ -166,8 +167,17 @@ func (r *storeRepository) UpdateStoreProfile(ctx context.Context, store entity.S
 		return err
 	}
 
-	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
-	return err
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrStoreNotFound.
+		WithDetails(map[string]any{"id": store.ID}).
+		WithLocation("storeRepository.UpdateStoreProfile"))
 }
 
 func (r *storeRepository) UpdateStoreOperational(ctx context.Context, store entity.Store) error {
@@ -185,8 +195,17 @@ func (r *storeRepository) UpdateStoreOperational(ctx context.Context, store enti
 		return err
 	}
 
-	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
-	return err
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrStoreNotFound.
+		WithDetails(map[string]any{"id": store.ID}).
+		WithLocation("storeRepository.UpdateStoreOperational"))
 }
 
 func (r *storeRepository) UpdateStoreStatus(ctx context.Context, storeID uuid.UUID, status string) error {
@@ -201,6 +220,15 @@ func (r *storeRepository) UpdateStoreStatus(ctx context.Context, storeID uuid.UU
 		return err
 	}
 
-	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
-	return err
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrStoreNotFound.
+		WithDetails(map[string]any{"id": storeID}).
+		WithLocation("storeRepository.UpdateStoreStatus"))
 }

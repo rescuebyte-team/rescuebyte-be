@@ -14,6 +14,7 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/enums"
 	"github.com/rescuebyte/rescuebyte-be/domain/errx"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
 )
 
 var orderSelectFields = []string{
@@ -338,6 +339,15 @@ func (r *orderRepository) UpdateOrderStatus(ctx context.Context, orderID uuid.UU
 		return err
 	}
 
-	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
-	return err
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrOrderNotFound.
+		WithDetails(map[string]any{"id": orderID}).
+		WithLocation("orderRepository.UpdateOrderStatus"))
 }

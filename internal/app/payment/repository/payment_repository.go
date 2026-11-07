@@ -11,6 +11,8 @@ import (
 
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
 	"github.com/rescuebyte/rescuebyte-be/domain/enums"
+	"github.com/rescuebyte/rescuebyte-be/domain/errx"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
 )
 
 var paymentSelectFields = []string{
@@ -99,6 +101,15 @@ func (r *paymentRepository) UpdatePaymentStatus(
 		return err
 	}
 
-	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
-	return err
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrNotFound.
+		WithDetails(map[string]any{"order_id": orderID}).
+		WithLocation("paymentRepository.UpdatePaymentStatus"))
 }

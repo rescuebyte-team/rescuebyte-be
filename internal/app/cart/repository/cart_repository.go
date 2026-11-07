@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/rescuebyte/rescuebyte-be/domain/entity"
+	"github.com/rescuebyte/rescuebyte-be/domain/errx"
+	"github.com/rescuebyte/rescuebyte-be/pkg/helpers"
 )
 
 func (r *cartRepository) GetOrCreateCartByUserID(ctx context.Context, userID uuid.UUID) (*entity.Cart, error) {
@@ -207,8 +209,17 @@ func (r *cartRepository) UpdateCartItemQuantity(ctx context.Context, id uuid.UUI
 		return err
 	}
 
-	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
-	return err
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrCartItemNotFound.
+		WithDetails(map[string]any{"id": id}).
+		WithLocation("cartRepository.UpdateCartItemQuantity"))
 }
 
 func (r *cartRepository) DeleteCartItem(ctx context.Context, id uuid.UUID) error {
@@ -221,8 +232,17 @@ func (r *cartRepository) DeleteCartItem(ctx context.Context, id uuid.UUID) error
 		return err
 	}
 
-	_, err = r.dbGetter(ctx).ExecContext(ctx, query, args...)
-	return err
+	result, err := r.dbGetter(ctx).ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return helpers.CheckRowsAffected(rowsAffected, errx.ErrCartItemNotFound.
+		WithDetails(map[string]any{"id": id}).
+		WithLocation("cartRepository.DeleteCartItem"))
 }
 
 func (r *cartRepository) DeleteCartItemsByStoreID(ctx context.Context, cartID, storeID uuid.UUID) error {
