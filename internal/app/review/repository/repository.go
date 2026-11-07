@@ -5,10 +5,10 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/internal/infra/database"
 )
 
-type commentRepository struct {
+type reviewRepository struct {
 	dbGetter database.DBGetter
 }
 
-func NewCommentRepository(dbGetter database.DBGetter) contracts.CommentRepository {
-	return &commentRepository{dbGetter: dbGetter}
+func NewReviewRepository(dbGetter database.DBGetter) contracts.ReviewRepository {
+	return &reviewRepository{dbGetter: dbGetter}
 }

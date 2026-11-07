@@ -6,23 +6,23 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/pkg/validator"
 )
 
-type commentService struct {
-	commentRepo contracts.CommentRepository
+type reviewService struct {
+	reviewRepo  contracts.ReviewRepository
 	storeRepo   contracts.StoreRepository
 	productRepo contracts.ProductRepository
 	validator   validator.Service
 	uuid        uuid.Service
 }
 
-func NewCommentService(
-	commentRepo contracts.CommentRepository,
+func NewReviewService(
+	reviewRepo contracts.ReviewRepository,
 	storeRepo contracts.StoreRepository,
 	productRepo contracts.ProductRepository,
 	validator validator.Service,
 	uuid uuid.Service,
-) contracts.CommentService {
-	return &commentService{
-		commentRepo: commentRepo,
+) contracts.ReviewService {
+	return &reviewService{
+		reviewRepo:  reviewRepo,
 		storeRepo:   storeRepo,
 		productRepo: productRepo,
 		validator:   validator,

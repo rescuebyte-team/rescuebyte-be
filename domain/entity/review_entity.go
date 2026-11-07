@@ -8,7 +8,7 @@ import (
 	"github.com/rescuebyte/rescuebyte-be/domain/enums"
 )
 
-type Comment struct {
+type Review struct {
 	ID         uuid.UUID         `db:"id" json:"id"`
 	UserID     uuid.UUID         `db:"user_id" json:"user_id"`
 	StoreID    *uuid.UUID        `db:"store_id" json:"store_id,omitempty"`
